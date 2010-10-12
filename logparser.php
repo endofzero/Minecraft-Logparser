@@ -1,22 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>MineCraft Logs</title></head><body style='background-color:black;color:white'>
+
 <?php
 /* Include Files *********************/
 require("../../include/dbconnect.php");
 /*************************************/
 
-/**
- * Function to calculate date or time difference.
- * 
- * Function to calculate date or time difference. Returns an array or
- * false on error.
- *
- * @author       J de Silva                             <giddomains@gmail.com>
- * @copyright    Copyright &copy; 2005, J de Silva
- * @link         http://www.gidnetwork.com/b-16.html    Get the date / time difference with PHP
- * @param        string                                 $start
- * @param        string                                 $end
- * @return       array
- */
 function get_time_difference( $start, $end )
 {
     $uts['start']      =    strtotime( $start );
@@ -37,30 +26,40 @@ function get_time_difference( $start, $end )
         }
         else
         {
-            trigger_error( "Ending date/time is earlier than the start 
-date/time", E_USER_WARNING );
+            trigger_error( "Ending date/time is earlier than the start date/time", E_USER_WARNING );
         }
     }
     else
     {
-        trigger_error( "Invalid date/time data detected", E_USER_WARNING 
-);
+        trigger_error( "Invalid date/time data detected", E_USER_WARNING );
     }
     return( false );
 }
 
-
-
-function clearTable(){
-     mysql_select_db("minecraft") or die("Unable to select Database");
-     if (mysql_query("DELETE FROM logs")){echo "Database cleared";
-     }else{echo "Error clearing database: " . mysql_error();}
+function clearTable()
+{
+	mysql_select_db("minecraft") or die("Unable to select Database");
+	if (mysql_query("DELETE FROM logs"))
+	{
+		echo "Database cleared";
+	}
+	else
+	{
+		echo "Error clearing database: " . mysql_error();
+	}
 }
 
-function dropTable(){
-     mysql_select_db("minecraft") or die("Unable to select Database");
-     if (mysql_query("DROP TABLE logs")){echo "Table Dropped";
-     }else{echo "Error Dropping Table: " . mysql_error();}
+function dropTable()
+{
+	mysql_select_db("minecraft") or die("Unable to select Database");
+	if (mysql_query("DROP TABLE logs"))
+	{
+		echo "Table Dropped";
+	}
+	else
+	{
+		echo "Error Dropping Table: " . mysql_error();
+	}
 }
 function createTable()
 {
@@ -73,42 +72,19 @@ function createTable()
 	Hash CHAR(32) NOT NULL,
 	Fluff CHAR(32))";
 	// Execute query
-	if (mysql_query($sql)){echo "Table created";
-	}else{echo "Error creating Table: " . mysql_error();}
-}
+	if (mysql_query($sql))
+	{
+		echo "Table created";
+	}
+	else
+	{
+		echo "Error creating Table: " . mysql_error();
+	}
 
-if ($_REQUEST["action"] == ""){
-        $action="stats";
-}else{
-        $action=$_REQUEST["action"];}
-
-if($action=="stats"){
-        displayStats();
-    }
-else if($action=="inject"){
-        injectLogs();
-    }
-else if($action=="createDB"){
-        createDB();
-    }
-else if($action=="createTable"){
-        createTable();
-    }
-else if($action=="dropTable"){
-        dropTable();
-    }
-else if($action=="clearTable"){
-        clearTable();
-}else{
-         displayStats();
+//	CREATE TABLE fluff( PRIMARY KEY (Hash),hash CHAR(32) NOT NULL,text CHAR(100));
 }
 
 function displayStats(){
-
-?>
-<html><head><title>MineCraft Logs</title></head><body style='background-color:black;color:white'>
-
-<?php
 
 $serverStats = array();
 $chat = array();
@@ -176,21 +152,22 @@ while($row = mysql_fetch_array($result))
 //Default Print
 	}else{
 		$fluffTest = htmlspecialchars(trim($row["Text"]));
-		echo "Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". htmlspecialchars($fluffTest)." ".in_array($fluffTest,$fluffArray)."</br>";
+		echo "Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". $fluffTest ."</br>";
 //		if (in_array($fluffTest,$fluffArray))
 //		echo "</br>";
 		$fluffMatch = 0;
 		$fluffCount = 0;
 		foreach($fluffArray as $value)
 		{
-		echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
+		echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value);
 //		echo "1: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
-			if (levenshtein($fluffTest,$value) <= 10)
+			if (trim($row["Fluff"])==md5(strtoupper(trim(stripcslashes($value)))))
+//			if (levenshtein($fluffTest,$value) <= 10)
 			{
-		//	echo "X";
+			echo " ==MATCH FOUND==</br>";
 //			echo "<h3>1: ". md5(strtoupper(trim($row["Text"]))) ." ".  $row["Text"] . "</br>2: " . md5(strtoupper(trim($value))) ." ".  $value . "</h3></br>";
 			$fluffMatch=1;
-			}	
+			}else{echo "</br>";}	
 //			if (stripcslashes(trim($row["Text"]))==trim($value))
 //			{
 		//	echo "X";
@@ -284,6 +261,29 @@ echo "Errors: " . $errorCount."</br>";
 
 //print_r($testArray);
 //print_r(file("/var/www/minecraft/logs/master-log.log"));
+}
+
+if ($_REQUEST["action"] == ""){$action="stats";}else{$action=$_REQUEST["action"];}
+
+if($action=="stats"){
+        displayStats();
+    }
+else if($action=="inject"){
+        injectLogs();
+    }
+else if($action=="createDB"){
+        createDB();
+    }
+else if($action=="createTable"){
+        createTable();
+    }
+else if($action=="dropTable"){
+        dropTable();
+    }
+else if($action=="clearTable"){
+        clearTable();
+}else{
+         displayStats();
 }
 
 ?>
