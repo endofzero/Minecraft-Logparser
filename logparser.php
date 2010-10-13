@@ -126,35 +126,34 @@ while($row = mysql_fetch_array($result))
 	//Server stop and start
 	if (preg_match("/Starting minecraft server version/",trim($row["Text"]))>0)
 	{
-	echo "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	if ($serverStart==1){
 		$diff=get_time_difference($startDate,$prevDate);
 		echo "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED</div>";
 	}
+	echo "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
 	$serverStart = 1;		
 	}
 	elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
 	{
 
-		echo "<div class='serverStop' style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$endDate=$row["Date"];
 		$diff=get_time_difference($startDate,$endDate);
 		echo "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
+		echo "<div class='serverStop' style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$serverStart=0;
 //Chat
 	}elseif (strcspn($row["Text"],"><")=="0"){
 	echo "<div style='background-color:black;color:cyan;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-//Console command
-	}
-	elseif (preg_match("/CONSOLE/",trim($row["Text"]))>0)
+	//Console command
+	}elseif (preg_match("/CONSOLE/",trim($row["Text"]))>0)
 	{
-//User console command
+		//User console command
 		if (strcspn($row["Text"],"[]")=="0"){
-	echo "<div style='background-color:black;color:cyan;;font-weight:bold;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-//System console
+	echo "<div style='background-color:black;color:#30D1D1;;font-weight:bold;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	//System console
 		}else{
-	echo "<div style='background-color:black;color:green;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	echo "<div style='background-color:black;color:#37BA2B;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		}
 //Severe error
 	}
@@ -168,9 +167,9 @@ while($row = mysql_fetch_array($result))
 		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //Hey0 Command logging - logging=1
 	}
-	elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
+	elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed/",trim($row["Text"]))>0)
 	{
-		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		echo "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //User Login 
 	}
 	elseif (preg_match("/logged in/",trim($row["Text"]))>0)
@@ -178,20 +177,30 @@ while($row = mysql_fetch_array($result))
 		echo "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //User Logout
 	}
-	elseif (preg_match("/lost connection/",trim($row["Text"]))>0)
+	elseif (preg_match("/lost connection|Disconnecting/",trim($row["Text"]))>0)
 	{
 		echo "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Default Print
+	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks/",trim($row["Text"]))>0)
+	{
+		echo "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	}elseif (preg_match("/Runecraft|used a|enchanted a/",trim($row["Text"]))>0)
+	{
+		echo "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	
 	}else{
 		$fluffTest = htmlspecialchars(trim($row["Text"]));
 //		echo "<div>Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". $fluffTest ."</div>";
 //		echo "</br>";
-		$pattern = "/".trim($row["Text"])."/";
-//		echo $pattern."</br>".trim($row["Text"])."</br>";
 		$fluffMatch = 0;
 		$fluffCount = 0;
 		foreach($fluffArray as $value)
 		{
+
+		$pattern = trim($value);
+//		$pattern = "/".trim($value)."/";
+//		echo $pattern." ".trim($row["Text"])." : " .preg_match($pattern,trim($row["Text"]))."</br>";
+
 //		echo "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value)."</div>";
 //		echo "1: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
 			if (preg_match($pattern,trim($row["Text"]))>0)
@@ -199,19 +208,12 @@ while($row = mysql_fetch_array($result))
 //			if (levenshtein($fluffTest,$value) <= 10)
 			{
 //			echo " ==MATCH FOUND==</br>";
-//			echo "<h3>1: ". md5(strtoupper(trim($row["Text"]))) ." ".  $row["Text"] . "</br>2: " . md5(strtoupper(trim($value))) ." ".  $value . "</h3></br>";
+//			echo "<h3>1: ".$pattern." ".  $row["Text"] . "</br>". $value . "</h3></br>";
 			$fluffMatch=1;
 			}
-//else{echo "</br>";}	
-//			if (stripcslashes(trim($row["Text"]))==trim($value))
-//			{
-		//	echo "X";
-//			echo "<h3>1: ". md5(strtoupper(trim($row["Text"]))) ." ".  $row["Text"] . "</br>2: " . md5(strtoupper(trim($value))) ." ".  $value . "</h3></br>";
-//			$fluffMatch=1;
-//			}	
 		$fluffCount++;
 		}
-
+//	if ($logCount>4){die();}
 		if ($fluffMatch==0)
 		{
 //		echo "1: ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: " . md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";

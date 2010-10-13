@@ -33,6 +33,12 @@ color:orange;
 {
 color:yellow;
 }
+
+.runecraft
+{
+color:#9DC230;
+}
+
 .serverUptimeBad
 {
 position:relative;
@@ -47,6 +53,10 @@ position:relative;
 left:40px;
 color:#777777;
 font-size:x-large;
+}
+.worldStart
+{
+color:#777777;
 }
 
 .userLogin{
