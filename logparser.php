@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>MineCraft Logs</title></head><body style='background-color:black;color:white'>
+<html><head><title>MineCraft Logs</title>
+<link rel="stylesheet" type="text/css" href="default.css" />
+</head><body>
 
 <?php
 /* Include Files *********************/
@@ -69,8 +71,7 @@ function createTable()
 	Date DATETIME,
 	Class VARCHAR(20),
 	Text VARCHAR(100),
-	Hash CHAR(32) NOT NULL,
-	Fluff CHAR(32))";
+	Hash CHAR(32) NOT NULL)";
 	// Execute query
 	if (mysql_query($sql))
 	{
@@ -84,13 +85,14 @@ function createTable()
 //	CREATE TABLE fluff( PRIMARY KEY (Hash),hash CHAR(32) NOT NULL,text CHAR(100));
 }
 
-function displayStats(){
-
-$serverStats = array();
-$chat = array();
-$connects = array();
-
-mysql_select_db("minecraft") or die("Unable to select Database");
+function displayStats()
+{
+	$serverStats = array();
+	$chat = array();
+	$connects = array();
+	
+	mysql_select_db("minecraft") or die("Unable to select Database");
+	
 	//Get userlist into Array
 	$queryUsers = "SELECT * from users";
 	$result = mysql_query($queryUsers);
@@ -108,6 +110,8 @@ $fluffArray = array();
 $fluffArray=file("fluff.txt");
 
 $logCount = 0;
+$serverStart = 0;
+$prevDate = "";
 
 $queryLogs = "SELECT * from logs";
 $result = mysql_query($queryLogs);
@@ -116,23 +120,35 @@ if (mysql_num_rows($result) != 0)
 {
 while($row = mysql_fetch_array($result))
 {
+
+//echo preg_match("/craft server version/",trim($row["Text"]));
+
 	//Server stop and start
-	if (strrpos(trim($row["Text"]),"rting minecraft server version")>="1")
+	if (preg_match("/Starting minecraft server version/",trim($row["Text"]))>0)
 	{
-	echo "<h2 style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</h2></br>";
-	$startDate= $row["Date"];		
+	echo "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	if ($serverStart==1){
+		$diff=get_time_difference($startDate,$prevDate);
+		echo "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED</div>";
 	}
-	elseif (strrpos(trim($row["Text"]),"topping server")>="1")
+	$startDate=$row["Date"];
+	$serverStart = 1;		
+	}
+	elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
 	{
-		echo "<h2 style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</h2></br>";
+
+		echo "<div class='serverStop' style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$endDate=$row["Date"];
 		$diff=get_time_difference($startDate,$endDate);
-		echo "Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</br>";
+		echo "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
+		$serverStart=0;
 //Chat
 	}elseif (strcspn($row["Text"],"><")=="0"){
 	echo "<div style='background-color:black;color:cyan;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Console command
-	}elseif (strrpos(trim($row["Text"]),"ONSOLE")>="1"){
+	}
+	elseif (preg_match("/CONSOLE/",trim($row["Text"]))>0)
+	{
 //User console command
 		if (strcspn($row["Text"],"[]")=="0"){
 	echo "<div style='background-color:black;color:cyan;;font-weight:bold;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
@@ -141,33 +157,52 @@ while($row = mysql_fetch_array($result))
 	echo "<div style='background-color:black;color:green;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		}
 //Severe error
-	}elseif (strrpos(trim($row["Class"]),"SEVERE")>="1"){
-		echo "<div style='background-color:black;color:red;font-size:110%;font-weight:bold;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	}
+	elseif (preg_match("/SEVERE/",trim($row["Class"]))>0)
+	{
+		echo "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Warning error
-	}elseif (strrpos(trim($row["Class"]),"WARNING")>="1"){
-		echo "<div style='background-color:black;color:orange;'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+	}
+	elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
+	{
+		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //Hey0 Command logging - logging=1
-	}elseif (strrpos(trim($row["Text"]),"ommand used by")>="1"){
-		echo "<div style='background-color:black;color:orange;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	}
+	elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
+	{
+		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+//User Login 
+	}
+	elseif (preg_match("/logged in/",trim($row["Text"]))>0)
+	{
+		echo "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+//User Logout
+	}
+	elseif (preg_match("/lost connection/",trim($row["Text"]))>0)
+	{
+		echo "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Default Print
 	}else{
 		$fluffTest = htmlspecialchars(trim($row["Text"]));
-		echo "Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". $fluffTest ."</br>";
-//		if (in_array($fluffTest,$fluffArray))
+//		echo "<div>Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". $fluffTest ."</div>";
 //		echo "</br>";
+		$pattern = "/".trim($row["Text"])."/";
+//		echo $pattern."</br>".trim($row["Text"])."</br>";
 		$fluffMatch = 0;
 		$fluffCount = 0;
 		foreach($fluffArray as $value)
 		{
-		echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value);
+//		echo "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value)."</div>";
 //		echo "1: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
-			if (trim($row["Fluff"])==md5(strtoupper(trim(stripcslashes($value)))))
+			if (preg_match($pattern,trim($row["Text"]))>0)
+//			if (trim($row["Fluff"])==md5(strtoupper(trim(stripcslashes($value)))))
 //			if (levenshtein($fluffTest,$value) <= 10)
 			{
-			echo " ==MATCH FOUND==</br>";
+//			echo " ==MATCH FOUND==</br>";
 //			echo "<h3>1: ". md5(strtoupper(trim($row["Text"]))) ." ".  $row["Text"] . "</br>2: " . md5(strtoupper(trim($value))) ." ".  $value . "</h3></br>";
 			$fluffMatch=1;
-			}else{echo "</br>";}	
+			}
+//else{echo "</br>";}	
 //			if (stripcslashes(trim($row["Text"]))==trim($value))
 //			{
 		//	echo "X";
@@ -183,13 +218,11 @@ while($row = mysql_fetch_array($result))
 			echo $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>";
 		}
 $logCount++;
+$prevDate = $row["Date"];
+//echo $prevDate."::";
 	}
 }
 }
-
-?>
-</body></html>
-<?php
 }
 
 function injectLogs(){
@@ -232,20 +265,19 @@ $fluffhash=md5(strtoupper(trim($value)));
 //echo $dateTime." ".$class." ".htmlspecialchars(trim($value))." : $hash </br>";
 
 mysql_select_db('minecraft') or die('Unable to select the Database');
-	$sql = "INSERT INTO logs(Date, Class, Text, Hash, Fluff) VALUES ('$dateTime', '$class', '".addslashes($value)."','$hash','$fluffhash')";
+	$sql = "INSERT INTO logs(Date, Class, Text, Hash) VALUES ('$dateTime', '$class', '".addslashes($value)."','$hash')";
 
 //echo $sql;
 	// Execute query
 	if (mysql_query($sql))
 	{
-//		echo "X";
 		$injectCount++;
 	}else{
-		if (strrpos(trim(mysql_error()),"uplicate")>="1"){
-//			echo "D";
+		if (preg_match("/Duplicate/",trim(mysql_error()))>0)
+		{
 			$dupeCount++;
 		}else{
-			echo "</br>Error: " . mysql_error() . "('$dateTime', '$class', '".htmlspecialchars($value)."'</br>";
+			$errorList .= "Error: " . mysql_error() . "('$dateTime', '$class', '".htmlspecialchars($value)."'</br>";
 			$errorCount++;
 		}
 	}
@@ -258,6 +290,8 @@ echo "Log Lines: " . count($testArray)."</br>";
 echo "Injections: " . $injectCount."</br>";
 echo "Duplicates: " . $dupeCount."</br>";
 echo "Errors: " . $errorCount."</br>";
+echo "Errors Returned:</br>";
+echo $errorList;
 
 //print_r($testArray);
 //print_r(file("/var/www/minecraft/logs/master-log.log"));
@@ -287,3 +321,4 @@ else if($action=="clearTable"){
 }
 
 ?>
+</body></html>

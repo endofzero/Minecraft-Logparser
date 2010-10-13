@@ -6,10 +6,17 @@ I can better run queries against that data.
 Connects to the same database as hey0's mod, 'minecraft' plan on making that 
 adjustable. 
 
+Currently requires that the logs be output to a master file to parse correctly.
+
+default.css contains all of the styles.
+
+A hash is created from the log line and used as the primary key in the table.
+This allows for you to run the same inject on the same log without worry about any duplicate entries.
+This also removes duplicate entries for commands that are spammed to the console within that second.
+
 Has functions to:
 Create the 'log' table
 Drop the 'log' table
 Clear the 'log' table
 Inject the log data into the 'log' table
 Display the log data FROM the 'log' table
-

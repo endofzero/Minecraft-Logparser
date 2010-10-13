@@ -1,0 +1,27 @@
+Server mod help:
+help Displays this mods and servers help
+mod-help Displays this mod's help
+reload Reloads the config
+modify Type modify for more info
+whitelist Type whitelist for more info
+reservelist Type reservelist for more info
+To run the server without a gui, start it like this:
+java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
+Console commands:
+help or ? shows this message
+kick <player> removes a player from the server
+ban <player> bans a player from the server
+pardon <player> pardons a banned player so that they can connect again
+ban-ip <ip> bans an IP address from the server
+pardon-ip <ip> pardons a banned IP address so that they can connect again
+op <player> turns a player into an op
+deop <player> removes op status from a player
+tp <player1> <player2> moves one player to the same location as another player
+give <player> <id> [num] gives a player a resource
+tell <player> <message> sends a private message to a player
+stop gracefully stops the server
+save-all forces a server-wide level save
+save-off disables terrain saving (useful for backup scripts)
+save-on re-enables terrain saving
+list lists all currently connected players
+say <message> broadcasts a message to all players
