@@ -8,6 +8,11 @@
 require("../../include/dbconnect.php");
 /*************************************/
 
+//Configuration
+
+$masterLogPath="/var/www/minecraft/logs/master-log.log";
+
+
 function get_time_difference( $start, $end )
 {
     $uts['start']      =    strtotime( $start );
@@ -36,6 +41,12 @@ function get_time_difference( $start, $end )
         trigger_error( "Invalid date/time data detected", E_USER_WARNING );
     }
     return( false );
+}
+
+function trimArray(&$value,$key)
+{
+$value=trim($value);
+$value=preg_quote($value,'/');
 }
 
 function clearTable()
@@ -108,6 +119,9 @@ function displayStats()
 $fluffArray = array();
 // Load fluff file into array
 $fluffArray=file("fluff.txt");
+//Trim Array and quote for preg
+array_walk($fluffArray,"trimArray");
+
 
 $logCount = 0;
 $serverStart = 0;
@@ -120,8 +134,6 @@ if (mysql_num_rows($result) != 0)
 {
 while($row = mysql_fetch_array($result))
 {
-
-//echo preg_match("/craft server version/",trim($row["Text"]));
 
 	//Server stop and start
 	if (preg_match("/Starting minecraft server version/",trim($row["Text"]))>0)
@@ -146,14 +158,14 @@ while($row = mysql_fetch_array($result))
 	}elseif (strcspn($row["Text"],"><")=="0"){
 	echo "<div style='background-color:black;color:cyan;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	//Console command
-	}elseif (preg_match("/CONSOLE/",trim($row["Text"]))>0)
+	}elseif (preg_match("/CONSOLE|Connected players:/",trim($row["Text"]))>0)
 	{
 		//User console command
 		if (strcspn($row["Text"],"[]")=="0"){
-	echo "<div style='background-color:black;color:#30D1D1;;font-weight:bold;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	//System console
+			echo "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		//System console
 		}else{
-	echo "<div style='background-color:black;color:#37BA2B;'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			echo "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		}
 //Severe error
 	}
@@ -167,7 +179,7 @@ while($row = mysql_fetch_array($result))
 		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //Hey0 Command logging - logging=1
 	}
-	elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed/",trim($row["Text"]))>0)
+	elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter/",trim($row["Text"]))>0)
 	{
 		echo "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //User Login 
@@ -181,7 +193,7 @@ while($row = mysql_fetch_array($result))
 	{
 		echo "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Default Print
-	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks/",trim($row["Text"]))>0)
+	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks|Starting Minecraft server on/",trim($row["Text"]))>0)
 	{
 		echo "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	}elseif (preg_match("/Runecraft|used a|enchanted a/",trim($row["Text"]))>0)
@@ -189,36 +201,31 @@ while($row = mysql_fetch_array($result))
 		echo "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	
 	}else{
-		$fluffTest = htmlspecialchars(trim($row["Text"]));
-//		echo "<div>Log  Check : ".str_pad($logCount,3).": ". $row["Fluff"] ." ". $fluffTest ."</div>";
-//		echo "</br>";
-		$fluffMatch = 0;
-		$fluffCount = 0;
-		foreach($fluffArray as $value)
-		{
 
-		$pattern = trim($value);
+		$pattern = "/".implode("|", $fluffArray)."/is";
+//		echo $pattern;
+//		echo "-:- ".preg_match($pattern,trim($row["Text"]));
+
+//echo $value."</br>";
+//		$pattern = trim($value);
 //		$pattern = "/".trim($value)."/";
 //		echo $pattern." ".trim($row["Text"])." : " .preg_match($pattern,trim($row["Text"]))."</br>";
 
 //		echo "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value)."</div>";
 //		echo "1: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
 			if (preg_match($pattern,trim($row["Text"]))>0)
-//			if (trim($row["Fluff"])==md5(strtoupper(trim(stripcslashes($value)))))
-//			if (levenshtein($fluffTest,$value) <= 10)
 			{
 //			echo " ==MATCH FOUND==</br>";
-//			echo "<h3>1: ".$pattern." ".  $row["Text"] . "</br>". $value . "</h3></br>";
+//			echo "<h3>1: ".preg_match($pattern,trim($row["Text"]))." ".  $row["Text"] . "</br>". $value . 
+"</h3></br>";
 			$fluffMatch=1;
 			}
 		$fluffCount++;
-		}
-//	if ($logCount>4){die();}
 		if ($fluffMatch==0)
 		{
 //		echo "1: ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: " . md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
 			echo $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>";
-		}
+}
 $logCount++;
 $prevDate = $row["Date"];
 //echo $prevDate."::";
@@ -229,12 +236,13 @@ $prevDate = $row["Date"];
 
 function injectLogs(){
 
+global $masterLogPath;
+
 $year = 2010;
 $testArray = array();
 
 // Load log file into array
-$testArray=file("/var/www/minecraft/logs/master-log.log");
-
+$testArray=file($masterLogPath);
 $injectCount=0;
 $dupeCount=0;
 $errorCount=0;
