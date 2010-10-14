@@ -1,7 +1,27 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>MineCraft Logs</title>
 <link rel="stylesheet" type="text/css" href="default.css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
 </head><body>
+	<script>
+	$(function() {
+		$( "#accordion" )
+			.accordion({
+			collapsible: true,
+			autoHeight: false,
+			active: false,
+			})
+			.sortable({
+				axis: "y",
+				handle: "h3",
+				stop: function() {
+					stop = true;
+				}
+			});
+	});
+
+	</script>
 
 <?php
 /* Include Files *********************/
@@ -11,7 +31,6 @@ require("../../include/dbconnect.php");
 //Configuration
 
 $masterLogPath="/var/www/minecraft/logs/master-log.log";
-
 
 function get_time_difference( $start, $end )
 {
@@ -33,7 +52,16 @@ function get_time_difference( $start, $end )
         }
         else
         {
-            trigger_error( "Ending date/time is earlier than the start date/time", E_USER_WARNING );
+            $diff    =    $uts['start'] - $uts['end'];
+            if( $days=intval((floor($diff/86400))) )
+                $diff = $diff % 86400;
+            if( $hours=intval((floor($diff/3600))) )
+                $diff = $diff % 3600;
+            if( $minutes=intval((floor($diff/60))) )
+                $diff = $diff % 60;
+            $diff    =    intval( $diff );            
+            return( array('days'=>$days, 'hours'=>$hours, 'minutes'=>$minutes, 'seconds'=>$diff) );
+//            trigger_error( "Ending date/time is earlier than the start date/time $start : $end", E_USER_WARNING );
         }
     }
     else
@@ -101,6 +129,12 @@ function displayStats()
 	$serverStats = array();
 	$chat = array();
 	$connects = array();
+
+	$fluffArray = array();
+	// Load fluff file into array
+	$fluffArray=file("fluff.txt");
+	//Trim Array and quote for preg
+	array_walk($fluffArray,"trimArray");
 	
 	mysql_select_db("minecraft") or die("Unable to select Database");
 	
@@ -115,13 +149,6 @@ function displayStats()
         		array_push($userList, trim($row['name']).":".trim($row['groups']));
 		}
 	}
-
-$fluffArray = array();
-// Load fluff file into array
-$fluffArray=file("fluff.txt");
-//Trim Array and quote for preg
-array_walk($fluffArray,"trimArray");
-
 
 $logCount = 0;
 $serverStart = 0;
@@ -140,9 +167,11 @@ while($row = mysql_fetch_array($result))
 	{
 	if ($serverStart==1){
 		$diff=get_time_difference($startDate,$prevDate);
-		echo "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED</div>";
+		$serverLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED</div>";
+		$fullLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED</div>";
 	}
-	echo "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
 	$serverStart = 1;		
 	}
@@ -151,74 +180,75 @@ while($row = mysql_fetch_array($result))
 
 		$endDate=$row["Date"];
 		$diff=get_time_difference($startDate,$endDate);
-		echo "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
-		echo "<div class='serverStop' style='background-color:black;color:white;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$serverLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
+		$fullLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
+		$serverLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$serverStart=0;
 //Chat
 	}elseif (strcspn($row["Text"],"><")=="0"){
-	echo "<div style='background-color:black;color:cyan;'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	$chatLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	$fullLog.= "<div class='userChat'>>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	//Console command
 	}elseif (preg_match("/CONSOLE|Connected players:/",trim($row["Text"]))>0)
 	{
 		//User console command
 		if (strcspn($row["Text"],"[]")=="0"){
-			echo "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			$chatLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			$fullLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		//System console
 		}else{
-			echo "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			$consoleLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			$fullLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		}
 //Severe error
 	}
 	elseif (preg_match("/SEVERE/",trim($row["Class"]))>0)
 	{
-		echo "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$errorLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Warning error
 	}
 	elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
 	{
-		echo "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		$errorLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //Hey0 Command logging - logging=1
 	}
 	elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter/",trim($row["Text"]))>0)
 	{
-		echo "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		$hey0Log .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 //User Login 
 	}
 	elseif (preg_match("/logged in/",trim($row["Text"]))>0)
 	{
-		echo "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$serverLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //User Logout
 	}
 	elseif (preg_match("/lost connection|Disconnecting/",trim($row["Text"]))>0)
 	{
-		echo "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$serverLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 //Default Print
 	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks|Starting Minecraft server on/",trim($row["Text"]))>0)
 	{
-		echo "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$serverLog.= "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	}elseif (preg_match("/Runecraft|used a|enchanted a/",trim($row["Text"]))>0)
 	{
-		echo "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$runecraftLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$fullLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	
 	}else{
 
 		$pattern = "/".implode("|", $fluffArray)."/is";
-//		echo $pattern;
-//		echo "-:- ".preg_match($pattern,trim($row["Text"]));
 
-//echo $value."</br>";
-//		$pattern = trim($value);
-//		$pattern = "/".trim($value)."/";
-//		echo $pattern." ".trim($row["Text"])." : " .preg_match($pattern,trim($row["Text"]))."</br>";
-
-//		echo "<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fluff Check: ".strcasecmp($fluffTest,$value)." _ ".levenshtein($fluffTest,$value)." :: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value)."</div>";
-//		echo "1: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($row["Text"]))) ." ". htmlspecialchars($row["Text"]) . "</br>2: ".str_pad($fluffCount,3).": ". md5(strtoupper(trim($value))) ." ". htmlspecialchars($value) . "</br>";
 			if (preg_match($pattern,trim($row["Text"]))>0)
 			{
-//			echo " ==MATCH FOUND==</br>";
-//			echo "<h3>1: ".preg_match($pattern,trim($row["Text"]))." ".  $row["Text"] . "</br>". $value . 
-"</h3></br>";
 			$fluffMatch=1;
+			$fullLog.= "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 			}
 		$fluffCount++;
 		if ($fluffMatch==0)
@@ -232,6 +262,38 @@ $prevDate = $row["Date"];
 	}
 }
 }
+?>
+<div id="accordion">
+	<h3><a href="#">Server</a></h3>
+	<div>
+			<?php echo $serverLog; ?>
+	</div>
+	<h3><a href="#">Error</a></h3>
+	<div>
+			<?php echo $errorLog; ?>
+	</div>
+	<h3><a href="#">Chat</a></h3>
+	<div>
+			<?php echo $chatLog; ?>
+	</div>
+	<h3><a href="#">Console</a></h3>
+	<div>
+			<?php echo $consoleLog; ?>
+	</div>
+	<h3><a href="#">Runecraft</a></h3>
+	<div>
+			<?php echo $runecraftLog; ?>
+	</div>
+	<h3><a href="#">hey0</a></h3>
+	<div>
+			<?php echo $hey0Log; ?>
+	</div>
+	<h3><a href="#">Full Logs</a></h3>
+	<div>
+			<?php echo $fullLog; ?>
+	</div>
+</div>
+<?php
 }
 
 function injectLogs(){
