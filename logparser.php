@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>MineCraft Logs</title>
-<link rel="stylesheet" type="text/css" href="default.css" />
+<link rel="stylesheet" type="text/css" href="css/default.css" />
   <style type="text/css">
     .wrapper{
       position:relative;
@@ -82,10 +82,10 @@
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
-<script type="text/javascript" src="../js/jquery.hoverIntent.min.js"></script>
-<script type="text/javascript" src="../js/jquery.metadata.js"></script>
-<script type="text/javascript" src="../js/jquery.mb.flipText.js"></script>
-<script type="text/javascript" src="../js/mbExtruder.js"></script>
+<script type="text/javascript" src="../../js/jquery.hoverIntent.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.metadata.js"></script>
+<script type="text/javascript" src="../../js/jquery.mb.flipText.js"></script>
+<script type="text/javascript" src="../../js/mbExtruder.js"></script>
 	<script type="text/javascript">
 	$(function() {
 		$( "#accordion" )
@@ -166,7 +166,7 @@
 
 <?php
 /* Include Files *********************/
-require("../../include/dbconnect.php");
+require("/var/include/dbconnect.php");
 /*************************************/
 
 //Configuration
@@ -451,7 +451,16 @@ $year = 2010;
 $testArray = array();
 
 // Load log file into array
-$testArray=file($masterLogPath);
+if (!file_exists($masterLogPath))
+{
+	trigger_error( "No File found to parse: $masterLogPath", E_USER_WARNING );
+	RETURN;
+}
+else
+{
+	$testArray=file($masterLogPath);
+}
+
 $injectCount=0;
 $dupeCount=0;
 $errorCount=0;
@@ -511,27 +520,31 @@ echo "Log Lines: " . count($testArray)."</br>";
 echo "Injections: " . $injectCount."</br>";
 echo "Duplicates: " . $dupeCount."</br>";
 echo "Errors: " . $errorCount."</br>";
-if ($errorCount>0){
-echo "Errors Returned:</br>";
-echo $errorList;
-}else{
-if (!unlink($masterLogPath))
-  {
-  echo ("Error deleting $masterLogPath");
-  }
+if ($errorCount>0)
+{
+	echo "Errors Returned:</br>";
+	echo $errorList;
+}
 else
-  {
-  echo ("Deleted $masterLogPath");
-  }
+{
+	// Zero out the file
+	$file = fopen($masterLogPath,"r+");
+	if (filesize($masterLogPath)!=0)
+	{
+		if (!ftruncate($file,0))
+		{
+			echo ("Error clearing $masterLogPath");
+  		}
+		else
+  		{
+  		echo ("Cleared Master Log");
+  		}
+  	}
 }
 
-//echo file_put_contents($injectLogPath,"Test\n",FILE_APPEND);
+fclose($file);
 
-//print_r($testArray);
-//print_r(file("/var/www/minecraft/logs/master-log.log"));
-
-
-}
+} // Inject Logs
 
 if ($_REQUEST["action"] == ""){$action="stats";}else{$action=$_REQUEST["action"];}
 
