@@ -7,16 +7,44 @@ Connects to the same database as hey0's mod, 'minecraft' plan on making that
 adjustable. 
 
 Currently requires that the logs be output to a master file to parse correctly.
+When the lines are injected into sql via the parser, it will zero out the master log file if there are no errors.
+This is to keep the filesize down of the master log file.
 
-default.css contains all of the styles.
+css/default.css contains all of the styles for the color legend.
+css/mb.extruder.css contains styles for the extruder plugin
 
 A hash is created from the log line and used as the primary key in the table.
 This allows for you to run the same inject on the same log without worry about any duplicate entries.
 This also removes duplicate entries for commands that are spammed to the console within that second.
 
 Has functions to:
-Create the 'log' table
-Drop the 'log' table
-Clear the 'log' table
-Inject the log data into the 'log' table
-Display the log data FROM the 'log' table
+Create the 'log' table				: ?action=createTable
+Drop the 'log' table				: ?action=dropTable
+Clear the 'log' table				: ?action=clearTable
+Inject the log data into the 'log' table	: ?action=inject
+Display the log data FROM the 'log' table	: <no variable passed>
+
+
+SQL Table is created via the following query:
+CREATE TABLE logs(
+  PRIMARY KEY(Hash),
+  Date DATETIME,
+  Class VARCHAR(20),
+  Text VARCHAR(100),
+  Hash CHAR(32) NOT NULL)";
+
+
+TODO:
+
+Overview graph generation
+DateTime selection
+Server Stats
+User Stats
+Inject seperated to command line script for use by cron
+
+Bugs:
+
+Uptime calculation is off - $prevDate isn't correct.
+User logTime calculation needs same $uptime check
+
+
