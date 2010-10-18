@@ -330,7 +330,7 @@ while($row = mysql_fetch_array($result))
 		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$serverStart=0;
 	//Chat
-	}elseif (strcspn($row["Text"],"><")=="0"){
+	}elseif (strcspn($row["Text"],"<")=="0"){
 	$chatLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 
@@ -403,10 +403,10 @@ while($row = mysql_fetch_array($result))
 		{
 			$fullLog .= $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>";
 		}
+	}
 $logCount++;
 $prevDate = $row["Date"];
 //echo $prevDate."::";
-	}
 }
 }
 ?>
