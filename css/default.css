@@ -32,7 +32,11 @@ text-decoration:none;
 {
 color:red
 }
-
+.itemName
+{
+color:red;
+font-weight:bold;
+}
 .serverStop,.serverStart
 {
 color:white;
