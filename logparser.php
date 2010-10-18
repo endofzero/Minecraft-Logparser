@@ -273,6 +273,8 @@ function displayStats()
 	$serverStats = array();
 	$chat = array();
 	$connects = array();
+	
+	$users = array();
 
 	$fluffArray = array();
 	// Load fluff file into array
@@ -290,11 +292,27 @@ function displayStats()
  	{
 		while($row = mysql_fetch_array($result))
 		{
-     //   		array_push($userList, array("name"=> trim($row['name'], "groups"=> trim($row['groups'])));
+   		array_push($userList, trim($row['name'])."-".trim($row['groups']));
 		}
 	}
 	array_walk($userList,"trimArray");
-	
+//	print_r($userList);
+
+	//Get item list into Array
+	$queryUsers = "SELECT * from items order by itemid";
+	$result = mysql_query($queryUsers);
+	$itemList= array();
+	if (mysql_num_rows($result) != 0)
+ 	{
+		while($row = mysql_fetch_array($result))
+		{
+		$itemList[trim($row['name'])] = trim($row['itemid']);
+//   		array_push($itemList, trim($row['itemid'])."-".trim($row['name']));
+		}
+	}
+	array_walk($itemList,"trimArray");
+//	print_r($itemList);
+
 $logCount = 0;
 $serverStart = 0;
 $prevDate = "";
@@ -347,8 +365,17 @@ while($row = mysql_fetch_array($result))
 			$fullLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		//System console
 		}else{
+		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
+		{
+		print_r($matches);
+		$matches[2]= array_search(trim($matches[2]),$itemList);
+			$consoleLog .= "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
+			$fullLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		}else{
 			$consoleLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 			$fullLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		}
+
 		}
 	//Severe error
 	}elseif (preg_match("/SEVERE/",trim($row["Class"]))>0)
@@ -363,20 +390,40 @@ while($row = mysql_fetch_array($result))
 	//Hey0 Command logging - logging=1
 	}elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter/",trim($row["Text"]))>0)
 	{
-		if (preg_match("/Giving .* some|Command used by .* \/give/",trim($row["Text"]))>0)
+		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
 		{
-		$fullLog .= "<div>BREAK</div>";
-		}
+		print_r($matches);
+		$matches[2]= array_search(trim($matches[2]),$itemList);
+		$hey0Log .= "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
+		$fullLog .= "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
+		}else{
 		$hey0Log .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		}
 	//User Login 
 	}elseif (preg_match("/logged in/",trim($row["Text"]))>0)
 	{
+		foreach ($userList as $user)
+		{
+			$user=explode('-',$user);
+			if (preg_match("/$user[0]/",trim($row["Text"])))
+			{
+//			echo "<span class='userLogin'> $user[0] </span> ";
+			}
+		}
 		$serverLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	//User Logout
 	}elseif (preg_match("/lost connection|Disconnecting/",trim($row["Text"]))>0)
 	{
+		foreach ($userList as $user)
+		{
+			$user=explode('-',$user);
+			if (preg_match("/$user[0]/",trim($row["Text"])))
+			{
+//			echo "<span class='userLogout'> $user[0] </span>";
+			}
+		}
 		$serverLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	// World Start
