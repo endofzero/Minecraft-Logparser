@@ -299,6 +299,8 @@ $logCount = 0;
 $serverStart = 0;
 $prevDate = "";
 
+$uptimeSeconds = 0;
+
 $queryLogs = "SELECT * from logs";
 $result = mysql_query($queryLogs);
  $numRows=mysql_num_rows($result);
@@ -314,6 +316,7 @@ while($row = mysql_fetch_array($result))
 		$diff=get_time_difference($startDate,$prevDate);
 		$serverLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 		$fullLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
+		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 	}
 	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
@@ -328,6 +331,7 @@ while($row = mysql_fetch_array($result))
 		$fullLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
 		$serverLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 		$serverStart=0;
 	//Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
@@ -409,6 +413,19 @@ $prevDate = $row["Date"];
 //echo $prevDate."::";
 }
 }
+//Calc Base values
+$uptimeMin=$uptimeSeconds/60;
+$uptimeHrs=$uptimeMin/60;
+$uptimeDay=floor($uptimeHrs/24);
+
+//Covert into remainders
+$uptimeSeconds=fmod($uptimeSeconds,60);
+$uptimeMin=floor(fmod($uptimeMin,60));
+$uptimeHrs=floor(fmod($uptimeHrs,24));
+
+//Floor Values
+
+echo "Total Server Uptime: $uptimeDay days - $uptimeHrs:$uptimeMin:$uptimeSeconds";
 ?>
 <div id="accordion">
 	<h3><a href="#">Server</a></h3>
