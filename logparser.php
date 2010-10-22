@@ -254,9 +254,11 @@ $uptimeHrs=$uptimeMin/60;
 $uptimeDay=floor($uptimeHrs/24);
 
 //Covert into remainders
-$uptimeSeconds=fmod($uptimeSeconds,60);
-$uptimeMin=floor(fmod($uptimeMin,60));
-$uptimeHrs=floor(fmod($uptimeHrs,24));
+$uptimeSeconds=str_pad(fmod($uptimeSeconds,60),2,"0",STR_PAD_LEFT);
+$uptimeMin=str_pad(floor(fmod($uptimeMin,60)),2,"0",STR_PAD_LEFT);
+$uptimeHrs=str_pad(floor(fmod($uptimeHrs,24)),2,"0",STR_PAD_LEFT);
+
+
 
 echo "Total Server Uptime: $uptimeDay days - $uptimeHrs:$uptimeMin:$uptimeSeconds";
 ?>
