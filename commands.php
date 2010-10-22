@@ -27,9 +27,30 @@ This is a command line PHP script with one option.
 <?php
 } else {
     echo $argv[1]."\n";
-if ($argv[1]=='inject'){
-injectLogs();
+
+	switch ($argv[1])
+	{
+	case "inject":
+		injectLogs();
+		break;
+	default:
+?>
+
+This is a command line PHP script with one option.
+
+  Usage:
+  <?php echo $argv[0]; ?> <option>
+
+	Current Commands:
+  inject : Will inject the logs into mysql based
+           on the settings in parser.settings
+
+  With the --help, -help, -h,
+  or -? options, you can get this help.
+
+<?php
 }
+
 }
 
 function clearTable()
