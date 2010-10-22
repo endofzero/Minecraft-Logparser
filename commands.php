@@ -27,6 +27,9 @@ This is a command line PHP script with one option.
 <?php
 } else {
     echo $argv[1]."\n";
+if ($argv[1]=='inject'){
+injectLogs();
+}
 }
 
 function clearTable()
@@ -144,22 +147,21 @@ mysql_select_db($logDatabase) or die('Unable to select the Database');
 			$dupeCount++;
 		}else{
 			$errorList .= "Error: " . mysql_error() . "('$dateTime', '$class', 
-'".htmlspecialchars($value)."'</br>";
+'".htmlspecialchars($value)."'\n";
 			$errorCount++;
 		}
 	}
 }
 }
 
-echo "</br>";
-echo "<h2>Injection Counts</h2>";
-echo "Log Lines: " . count($testArray)."</br>";
-echo "Injections: " . $injectCount."</br>";
-echo "Duplicates: " . $dupeCount."</br>";
-echo "Errors: " . $errorCount."</br>";
+echo "\nInjection Counts\n";
+echo "Log Lines: " . count($testArray)."\n";
+echo "Injections: " . $injectCount."\n";
+echo "Duplicates: " . $dupeCount."\n";
+echo "Errors: " . $errorCount."\n";
 if ($errorCount>0)
 {
-	echo "Errors Returned:</br>";
+	echo "Errors Returned:\n";
 	echo $errorList;
 }
 else
@@ -170,11 +172,11 @@ else
 	{
 		if (!ftruncate($file,0))
 		{
-			echo ("Error clearing $masterLogPath");
+			echo ("Error clearing $masterLogPath\n");
   		}
 		else
   		{
-  		echo ("Cleared Master Log");
+  		echo ("Cleared Master Log\n");
   		}
   	}
 }
