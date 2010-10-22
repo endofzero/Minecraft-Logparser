@@ -1,3 +1,5 @@
 masterLogPath="/var/www/minecraft/logs/master-log.log"
 injectLogPath="/var/www/minecraft/inject.log"
 displayFluff=0
+logTableName="logs"
+logDatabase="minecraft"
