@@ -18,12 +18,16 @@ masterLogPath="<path to master log file>"
 
 injectLogPath="<path to master inject file>"
 	This is the path to the inject log path. This log contains all data that has been injected into 
-the sql database along with the hashcode, so basically a txt table of the INSERT command. Plan on making 
-this optional.
+the sql database along with the hashcode, so basically a txt table of the INSERT command. 
+Plan on making this optional.
 
 displayFluff=1|0   
 	1=Display fluff text 
 	0=Hide text denoted as fluff in the fluff.txt file
+
+logDatabase="<name of database>"
+
+logTableName="<name of the log table>"
 
 Example parser.settings:
 masterLogPath="/var/www/minecraft/logs/master-log.log"
