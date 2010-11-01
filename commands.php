@@ -6,10 +6,12 @@ require("/var/include/dbconnect.php");
 /*************************************/
 
 //Configuration
+$parserSettings=parse_ini_file("parser.settings");
+$masterLogPath=$parserSettings['masterLogPath'];
+$injectLogPath=$parserSettings['injectLogPath'];
 
-$masterLogPath="/var/www/minecraft/logs/master-log.log";
-$injectLogPath="/var/www/minecraft/inject.log";
-$logDatabase="minecraft";
+$logDatabase=$parserSettings['logDatabase'];
+$logTableName=$parserSettings['logTableName'];
 
 if ($argc != 2 || in_array($argv[1], array('--help', '-help', '-h', 
 '-?'))) {
@@ -24,6 +26,12 @@ This is a command line PHP script with one option.
   inject : Will inject the logs into mysql based
            on the settings in parser.settings
 
+  clearTable ZzC13arzZ : Will clear the table 
+           of all data, you must enter in the 
+	   confirm code.
+
+  createTable : Creates the table in SQL 
+           
   With the --help, -help, -h,
   or -? options, you can get this help.
 
@@ -32,6 +40,12 @@ This is a command line PHP script with one option.
 	switch ($argv[1])
 	{
 	case "inject":
+		injectLogs();
+		break;
+	case "clearTable":
+		injectLogs();
+		break;
+	case "createTable":
 		injectLogs();
 		break;
 	default:
