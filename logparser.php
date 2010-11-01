@@ -199,6 +199,9 @@ while($row = mysql_fetch_array($result))
 //			echo "<span class='userLogin'> $user[0] </span> ";
 			}
 		}
+
+		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+
 		$serverLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	//User Logout
@@ -212,6 +215,8 @@ while($row = mysql_fetch_array($result))
 //			echo "<span class='userLogout'> $user[0] </span>";
 			}
 		}
+		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+
 		$serverLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	// World Start
