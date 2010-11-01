@@ -216,6 +216,7 @@ while($row = mysql_fetch_array($result))
 			}
 		}
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+		$row["Text"]= preg_replace ( "/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/" , "*" , trim($row["Text"]));
 
 		$serverLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
