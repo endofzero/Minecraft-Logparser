@@ -107,7 +107,7 @@ $prevDate = "";
 
 $uptimeSeconds = 0;
 
-$queryLogs = "SELECT * from logs";
+$queryLogs = "SELECT * from logs order by Date";
 $result = mysql_query($queryLogs);
  $numRows=mysql_num_rows($result);
 if (mysql_num_rows($result) != 0)
