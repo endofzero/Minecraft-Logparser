@@ -120,8 +120,8 @@ while($row = mysql_fetch_array($result))
 	{
 	if ($serverStart==1){
 		$diff=get_time_difference($startDate,$prevDate);
-		$serverLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
-		$fullLog.= "<div class='serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
+		$serverLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
+		$fullLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 	}
 	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
@@ -258,17 +258,29 @@ $prevDate = $row["Date"];
 $uptimeMin=$uptimeSeconds/60;
 $uptimeHrs=$uptimeMin/60;
 $uptimeDay=floor($uptimeHrs/24);
+$uptimeWeek=floor($uptimeDay/7);
 
 //Covert into remainders
 $uptimeSeconds=str_pad(fmod($uptimeSeconds,60),2,"0",STR_PAD_LEFT);
 $uptimeMin=str_pad(floor(fmod($uptimeMin,60)),2,"0",STR_PAD_LEFT);
 $uptimeHrs=str_pad(floor(fmod($uptimeHrs,24)),2,"0",STR_PAD_LEFT);
+$uptimeDay=str_pad(floor(fmod($uptimeDay,7)),2,"0",STR_PAD_LEFT);
+$uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 
+//$uptimeSeconds=fmod($uptimeSeconds,60);
+//$uptimeMin=floor(fmod($uptimeMin,60));
+//$uptimeHrs=floor(fmod($uptimeHrs,24));
 
-
-echo "Total Server Uptime: $uptimeDay days - $uptimeHrs:$uptimeMin:$uptimeSeconds";
+echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='uptimeDay'>$uptimeDay</span>:<span id='uptimeHrs'>$uptimeHrs</span>:<span id='uptimeMin'>$uptimeMin</span>:<span id='uptimeSeconds'>$uptimeSeconds</span></div>";
+//echo "<div id='uptime'>Total Server Uptime: <span id='uptimeDay'>$uptimeDay</span> days - $uptimeHrs hours, $uptimeMin minutes, $uptimeSeconds seconds</div>";
 ?>
 <div id="accordion">
+	<h3><a href="#">Image</a></h3>
+	<div>
+	<canvas id="grapher" width="800" height="250">
+	This text is displayed if your browser does not support HTML5 Canvas.
+	</canvas>
+	</div>
 	<h3><a href="#">Server</a></h3>
 	<div>
 			<?php echo $serverLog; ?>
@@ -303,169 +315,38 @@ echo "Total Server Uptime: $uptimeDay days - $uptimeHrs:$uptimeMin:$uptimeSecond
 ?>
 
 <html><head><title>MineCraft Logs</title>
-<link rel="stylesheet" type="text/css" href="css/default.css" />
-  <style type="text/css">
-    .wrapper{
-      position:relative;
-      font-family:Arial, Helvetica, sans-serif;
-      padding-top:90px;
-      padding-left:50px;
-      width:80%;
-      margin:auto
-    }
-    .wrapper .text{
-      font-family:Arial, Helvetica, sans-serif;
-      padding-top:50px;
-    }
-    .wrapper h1{
-      font-family:Arial, Helvetica, sans-serif;
-      font-size:26px;
-    }
-    .longText{
-      margin-top:20px;
-      width:600px;
-      font:18px/24px Arial, Helvetica, sans-serif;
-      color:gray;
-    }
-    span.btn{
-      padding:10px;
-      display:inline-block;
-      cursor:pointer;
-      font:12px/14px Arial, Helvetica, sans-serif;
-      color:#aaa;
-      background-color:#eee;
-      -moz-border-radius:10px;
-      -webkit-border-radius:10px;
-      -moz-box-shadow:#999 2px 0px 3px;
-      -webkit-box-shadow:#999 2px 0px 3px;
-    }
-    span.btn:hover{
-      background-color:#000;
-    }
 
-      /*
-      custom style for extruder
-      */
-
-    .extruder.left.a .flap{
-      font-size:18px;
-      color:white;
-      top:0;
-      padding:10px 0 10px 10px;
-      background:#772B14;
-      width:30px;
-      position:absolute;
-      right:0;
-      -moz-border-radius:0 10px 10px 0;
-      -webkit-border-top-right-radius:10px;
-      -webkit-border-bottom-right-radius:10px;
-      -moz-box-shadow:#666 2px 0px 3px;
-      -webkit-box-shadow:#666 2px 0px 3px;
-    }
-
-    .extruder.left.a .content{
-      border-right:3px solid #772B14;
-    }
-
-    .extruder.top .optionsPanel .panelVoice a:hover{
-      color:#fff;
-      background: url("elements/black_op_30.png");
-      border-bottom:1px solid #000;
-    }
-    .extruder.top .optionsPanel .panelVoice a{
-      border-bottom:1px solid #000;
-    }
-
-    .extruder.left.a .flap .flapLabel{
-      background:#772B14;
-    }
-  </style>
-
-  <link href="css/mbExtruder.css" media="all" rel="stylesheet" type="text/css">
+  <link type="text/css" href="css/dark-hive/jquery-ui-1.8.6.custom.css" rel="stylesheet" />	
+  <link rel="stylesheet" type="text/css" href="css/default.css" />
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
-<script type="text/javascript" src="../../js/jquery.hoverIntent.min.js"></script>
-<script type="text/javascript" src="../../js/jquery.metadata.js"></script>
-<script type="text/javascript" src="../../js/jquery.mb.flipText.js"></script>
-<script type="text/javascript" src="../../js/mbExtruder.js"></script>
-	<script type="text/javascript">
-	$(function() {
-		$( "#accordion" )
-			.accordion({
-			collapsible: true,
-			autoHeight: false,
-			active: false,
-			})
-			.sortable({
-				axis: "y",
-				handle: "h3",
-				stop: function() {
-					stop = true;
-				}
-		});
-		$("#extruderTop").buildMbExtruder({
-			width:350,
-      			flapDim:"100%",
-      			extruderOpacity:1,
-      			onClose:function(){},
-      			onContentLoad: function(){}
-    		});
-      $("#extruderBottom").buildMbExtruder({
-        position:"bottom",
-        width:350,
-        extruderOpacity:1,
-        onExtOpen:function(){},
-        onExtContentLoad:function(){},
-        onExtClose:function(){}
-      });
-      $("#extruderLeft").buildMbExtruder({
-        position:"left",
-        width:300,
-        extruderOpacity:.8,
-        hidePanelsOnClose:false,
-        accordionPanels:false,
-        onExtOpen:function(){},
-        onExtContentLoad:function(){$("#extruderLeft").openPanel();},
-        onExtClose:function(){}
-      });
-
-      $("#extruderLeft1").buildMbExtruder({
-        position:"left",
-        width:300,
-        extruderOpacity:.8,
-        onExtOpen:function(){},
-        onExtContentLoad:function(){},
-        onExtClose:function(){}
-      });
-
-      $("#extruderLeft2").buildMbExtruder({
-        position:"left",
-        width:300,
-        positionFixed:false,
-        top:0,
-        extruderOpacity:.8,
-        onExtOpen:function(){},
-        onExtContentLoad:function(){},
-        onExtClose:function(){}
-      });
-
-      $("#extruderRight").buildMbExtruder({
-        position:"right",
-        width:300,
-        extruderOpacity:.8,
-        textOrientation:"tb",
-        onExtOpen:function(){},
-        onExtContentLoad:function(){},
-        onExtClose:function(){}
-      });
-	});
-
-	</script>
-
-
+<script type="text/javascript" src="js/main.js"></script>
 </head><body>
-<div id="extruderBottom" class="{title:'Color Legend', url:'parts/colorLegend.html'}"> </div>
+
+<div id="legendDialog" title="Color Legend">
+<div><span class="severeError">Severe Error</span></div>
+<div><span class="WarningError">Warning Error</span></div>
+<div><span class="serverStart">Server Start / Stop</span></div>
+<div><span class="serverUptime">Server Uptime</span></div>
+<div><span class="serverUptimeBad">Server Uptime - Bad</span></div>
+<div><span class="worldStart">World Start</span></div>
+<div><span class="heyLogging">hey0 Logging</span></div>
+<div><span class="runecraft">Runecraft</span></div>
+<div><span class="userLogin">User Login</span></div>
+<div><span class="userLogout">User Logout</span></div>
+<div><span class="userChat">User Chat</span></div>
+<div><span class="consoleChat">Console Chat</span></div>
+<div><span class="consoleMsg">Console Message</span></div>
+</div>
+
+<div id="statsDialog" title="Stats">
+<div><span class="severeError">Uptime:</span><div id="uptimeOutput"></div></div>
+</div>
+
+
+<button id="legend">Legend</button>
+<button id="stats">Stats</button>
 
 <?php
 displayStats();

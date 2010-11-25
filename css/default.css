@@ -4,25 +4,21 @@ background-image:url('../images/minehell.png');
 background-color:black;
 background-repeat:no-repeat;
 background-attachment:fixed;
-color:white
+color:white;
+font-size:75%;
 }
 
 
 .ui-accordion-content-active
 {
-background-color:#111111;
-opacity:0.75;filter:alpha(opacity=75)
+opacity:0.65;filter:alpha(opacity=65)
 
-}
-.ui-accordian
-{
-background-color:#444444;
 }
 
 .ui-accordion-header
 {
 color:yellow;
-font-size:xx-large;
+font-size:medium;
 }
 a{
 color:yellow;
@@ -40,9 +36,14 @@ font-weight:bold;
 .serverStop,.serverStart
 {
 color:white;
-font-size:x-large;
 position:relative;
 left:20px;
+font-size:2.0em;
+}
+
+.logFont
+{
+font-size:small;
 }
 
 .severeError
@@ -72,15 +73,15 @@ color:#9DC230;
 position:relative;
 left:40px;
 color:#777777;
-font-size:x-large;
+font-size:1.5em;
 font-weight:bold;
 }
 .serverUptime
 {
 position:relative;
 left:40px;
+font-size:1.5em;
 color:#777777;
-font-size:x-large;
 }
 .worldStart
 {
@@ -88,12 +89,12 @@ color:#777777;
 }
 
 .userLogin{
-font-size:large;
+font-size:1.25em;
 color:#286FE0;
 }
 
 .userLogout{
-font-size:large;
+font-size:1.25em;
 color:#4C82D9;
 }
 
@@ -109,3 +110,9 @@ color:#30D1D1;
 color:#37BA2B;
 }
 
+#uptimeDialog{
+position:absolute;
+top:25px;
+right:25px;
+color:#37BA2B;
+}
