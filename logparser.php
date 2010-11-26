@@ -30,15 +30,6 @@ function get_time_difference( $start, $end )
         }
         else
         {
-//            $diff    =    $uts['start'] - $uts['end'];
-//            if( $days=intval((floor($diff/86400))) )
-//                $diff = $diff % 86400;
-//            if( $hours=intval((floor($diff/3600))) )
-//                $diff = $diff % 3600;
-//            if( $minutes=intval((floor($diff/60))) )
-//                $diff = $diff % 60;
-//            $diff    =    intval( $diff );            
-//            return( array('days'=>$days, 'hours'=>$hours, 'minutes'=>$minutes, 'seconds'=>$diff) );
             trigger_error( "Ending date/time is earlier than the start date/time $start : $end", E_USER_WARNING );
         }
     }
@@ -59,6 +50,11 @@ function displayStats()
 {
 	global $displayFluff;
 	$serverStats = array();
+	$severeErrors = array();
+	$warningErrors = array();
+	$consoleMsg = array();
+	$heyLogging = array();
+	$runecraft = array();
 	$chat = array();
 	$connects = array();
 	
@@ -102,11 +98,14 @@ function displayStats()
 //	print_r($itemList);
 
 $logCount = 0;
-$serverStart = 0;
+$serverStart = -1;
 $prevDate = "";
-
 $uptimeSeconds = 0;
 
+$firstDate = 0;
+$lastDate = 0;
+
+//$queryLogs = "SELECT * from logs where Date >= DATE_SUB(NOW(),INTERVAL 1 DAY) order by Date";
 $queryLogs = "SELECT * from logs order by Date";
 $result = mysql_query($queryLogs);
  $numRows=mysql_num_rows($result);
@@ -123,10 +122,14 @@ while($row = mysql_fetch_array($result))
 		$serverLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 		$fullLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
+//		echo date("U",strtotime($prevDate))." 0</br>";
+		array_push($serverStats, date("U",strtotime($prevDate)).":0");
 	}
 	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
+//	echo date("U",strtotime($row["Date"]))." 1</br>";
+	array_push($serverStats, date("U",strtotime($row["Date"])).":1");
 	$serverStart = 1;		
 	// Server Stop
 	}elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
@@ -138,11 +141,15 @@ while($row = mysql_fetch_array($result))
 		$serverLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
+//		echo date("U",strtotime($row["Date"]))." 0</br>";
+		array_push($serverStats, date("U",strtotime($row["Date"])).":0");
 		$serverStart=0;
+
 	//Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
 	$chatLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	array_push($chat, date("U",strtotime($row["Date"])));
 
 	//Console command
 	}elseif (preg_match("/CONSOLE|Connected players:/",trim($row["Text"]))>0)
@@ -170,14 +177,17 @@ while($row = mysql_fetch_array($result))
 	{
 		$errorLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($severeErrors, date("U",strtotime($row["Date"])));
 	//Warning error
 	}elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
 	{
 		$errorLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($warningErrors, date("U",strtotime($row["Date"])));
 	//Hey0 Command logging - logging=1
 	}elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter/",trim($row["Text"]))>0)
 	{
+		array_push($heyLogging, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
 		{
 //		print_r($matches);
@@ -230,6 +240,7 @@ while($row = mysql_fetch_array($result))
 	{
 		$runecraftLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$fullLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($runecraft, date("U",strtotime($row["Date"])));
 	//Default Print
 	}else{
 
@@ -251,6 +262,17 @@ while($row = mysql_fetch_array($result))
 	}
 $logCount++;
 $prevDate = $row["Date"];
+
+if ($firstDate==0){
+$firstDate = date("U",strtotime($row["Date"]));
+//echo date("U",strtotime($row["Date"]))."</br>";
+}
+
+if (date("U",strtotime($row["Date"]))>= $firstDate)
+{
+$lastDate = date("U",strtotime($row["Date"]));
+}
+//echo $row["Date"]."</br>";
 //echo $prevDate."::";
 }
 }
@@ -271,45 +293,95 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //$uptimeMin=floor(fmod($uptimeMin,60));
 //$uptimeHrs=floor(fmod($uptimeHrs,24));
 
+$secDiff = $lastDate - $firstDate;
+
+echo $firstDate." - ".$lastDate." : ".$secDiff." ". (($serverStats[1] - $serverStats[0])/$secDiff)."</br>";
+
+foreach ($chat as $value)
+{
+echo $value."</br>";
+}
+//print_r($serverStats);
+
 echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='uptimeDay'>$uptimeDay</span>:<span id='uptimeHrs'>$uptimeHrs</span>:<span id='uptimeMin'>$uptimeMin</span>:<span id='uptimeSeconds'>$uptimeSeconds</span></div>";
 //echo "<div id='uptime'>Total Server Uptime: <span id='uptimeDay'>$uptimeDay</span> days - $uptimeHrs hours, $uptimeMin minutes, $uptimeSeconds seconds</div>";
 ?>
+
+<button id="legend">Legend</button>
+<button id="stats">Stats</button>
+
 <div id="accordion">
 	<h3><a href="#">Image</a></h3>
 	<div>
-	<canvas id="grapher" width="800" height="250">
+	<div><canvas id="grapher" width="1000" height="250">
 	This text is displayed if your browser does not support HTML5 Canvas.
-	</canvas>
+	</canvas></div>
+	<div><button id="graphOpt">Options</button></div>
 	</div>
 	<h3><a href="#">Server</a></h3>
 	<div>
-			<?php echo $serverLog; ?>
+			<?php// echo $serverLog; ?>
 	</div>
 	<h3><a href="#">Error</a></h3>
 	<div>
-			<?php echo $errorLog; ?>
+			<?php// echo $errorLog; ?>
 	</div>
 	<h3><a href="#">Chat</a></h3>
 	<div>
-			<?php echo $chatLog; ?>
+			<?php// echo $chatLog; ?>
 	</div>
 	<h3><a href="#">Console</a></h3>
 	<div>
-			<?php echo $consoleLog; ?>
+			<?php// echo $consoleLog; ?>
 	</div>
 	<h3><a href="#">Runecraft</a></h3>
 	<div>
-			<?php echo $runecraftLog; ?>
+			<?php// echo $runecraftLog; ?>
 	</div>
 	<h3><a href="#">hey0</a></h3>
 	<div>
-			<?php echo $hey0Log; ?>
+			<?php// echo $hey0Log; ?>
 	</div>
 	<h3><a href="#">Full Logs</a></h3>
 	<div>
-			<?php echo $fullLog; ?>
+			<?php// echo $fullLog; ?>
 	</div>
 </div>
+<div class='display:none' id="legendDialog" title="Color Legend">
+<div><span class="serverStart">Server Start / Stop</span></div>
+<div><span class="serverUptime">Server Uptime</span></div>
+<div><span class="serverUptimeBad">Server Uptime - Bad</span></div>
+<div><span class="worldStart">World Start</span></div>
+<div><span class="severeError">Severe Error</span></div>
+<div><span class="WarningError">Warning Error</span></div>
+<div><span class="heyLogging">hey0 Logging</span></div>
+<div><span class="runecraft">Runecraft</span></div>
+<div><span class="userLogin">User Login</span></div>
+<div><span class="userLogout">User Logout</span></div>
+<div><span class="userChat">User Chat</span></div>
+<div><span class="consoleChat">Console Chat</span></div>
+<div><span class="consoleMsg">Console Message</span></div>
+</div>
+
+<div class='display:none' id="graphDialog" title="Graph Options">
+<table>
+<tr><td><span class="serverStart2">Server Start/Stop</span></td><td><span id="severStartGraph"></span></td></tr>
+<tr><td><span class="severeError">Severe Error</span></td><td><span id="severeErrorGraph"></span></td></tr>
+<tr><td><span class="WarningError">Warning Error</span></td><td><span id="warningErrorGraph"></span></td></tr>
+<tr><td><span class="heyLogging">hey0 Logging</span></td><td><span id="heyLoggingGraph"></span></td></tr>
+<tr><td><span class="runecraft">Runecraft</span></td><td><span id="runecraftGraph"></span></td></tr>
+<tr><td><span class="userLogin">User Login</span></td><td><span id="userLoginGraph"></span></td></tr>
+<tr><td><span class="userLogout">User Logout</span></td><td><span id="userLogoutGraph"></span></td></tr>
+<tr><td><span class="userChat">User Chat</span></td><td><span id="userChatGraph"></span></td></tr>
+<tr><td><span class="consoleChat">Console Chat</span></td><td><span id="consoleChatGraph"></span></td></tr>
+<tr><td><span class="consoleMsg">Console Message</span></td><td><span id="consoleMsgGraph"></span></td></tr>
+</table>
+</div>
+
+<div id="statsDialog" title="Stats">
+<div><span class="severeError">Uptime:</span><div id="uptimeOutput"></div></div>
+</div>
+
 <?php
 }
 ?>
@@ -323,30 +395,6 @@ echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 </head><body>
-
-<div id="legendDialog" title="Color Legend">
-<div><span class="severeError">Severe Error</span></div>
-<div><span class="WarningError">Warning Error</span></div>
-<div><span class="serverStart">Server Start / Stop</span></div>
-<div><span class="serverUptime">Server Uptime</span></div>
-<div><span class="serverUptimeBad">Server Uptime - Bad</span></div>
-<div><span class="worldStart">World Start</span></div>
-<div><span class="heyLogging">hey0 Logging</span></div>
-<div><span class="runecraft">Runecraft</span></div>
-<div><span class="userLogin">User Login</span></div>
-<div><span class="userLogout">User Logout</span></div>
-<div><span class="userChat">User Chat</span></div>
-<div><span class="consoleChat">Console Chat</span></div>
-<div><span class="consoleMsg">Console Message</span></div>
-</div>
-
-<div id="statsDialog" title="Stats">
-<div><span class="severeError">Uptime:</span><div id="uptimeOutput"></div></div>
-</div>
-
-
-<button id="legend">Legend</button>
-<button id="stats">Stats</button>
 
 <?php
 displayStats();
