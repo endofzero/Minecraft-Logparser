@@ -8,7 +8,6 @@ color:white;
 font-size:75%;
 }
 
-
 .ui-accordion-content-active
 {
 opacity:0.65;filter:alpha(opacity=65)
@@ -39,6 +38,12 @@ color:white;
 position:relative;
 left:20px;
 font-size:2.0em;
+}
+
+.serverStart2
+{
+color:white;
+font-size:1.5em;
 }
 
 .logFont
@@ -111,6 +116,7 @@ color:#37BA2B;
 }
 
 #uptimeDialog{
+display:none;
 position:absolute;
 top:25px;
 right:25px;
