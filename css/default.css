@@ -60,12 +60,12 @@ font-weight:bold;
 
 .warningError
 {
-color:orange;
+color:#FF8000;
 }
 
 .heyLogging
 {
-color:yellow;
+color:#FFFF00;
 }
 
 .runecraft
