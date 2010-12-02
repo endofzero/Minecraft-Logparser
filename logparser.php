@@ -53,9 +53,10 @@ function displayStats()
 	$severeErrors = array();
 	$warningErrors = array();
 	$consoleMsg = array();
+	$consoleChat = array();
 	$heyLogging = array();
 	$runecraft = array();
-	$chat = array();
+	$userChat = array();
 	$connects = array();
 	
 	$users = array();
@@ -123,13 +124,13 @@ while($row = mysql_fetch_array($result))
 		$fullLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 //		echo date("U",strtotime($prevDate))." 0</br>";
-		array_push($serverStats, date("U",strtotime($prevDate)).":0");
+		array_push($serverStats, "0:".date("U",strtotime($prevDate)));
 	}
 	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
 //	echo date("U",strtotime($row["Date"]))." 1</br>";
-	array_push($serverStats, date("U",strtotime($row["Date"])).":1");
+	array_push($serverStats, "1:".date("U",strtotime($row["Date"])));
 	$serverStart = 1;		
 	// Server Stop
 	}elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
@@ -142,14 +143,14 @@ while($row = mysql_fetch_array($result))
 		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 //		echo date("U",strtotime($row["Date"]))." 0</br>";
-		array_push($serverStats, date("U",strtotime($row["Date"])).":0");
+		array_push($serverStats, "0:".date("U",strtotime($row["Date"])));
 		$serverStart=0;
 
 	//Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
 	$chatLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$fullLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($chat, date("U",strtotime($row["Date"])));
+	array_push($userChat, date("U",strtotime($row["Date"])));
 
 	//Console command
 	}elseif (preg_match("/CONSOLE|Connected players:/",trim($row["Text"]))>0)
@@ -158,8 +159,10 @@ while($row = mysql_fetch_array($result))
 		if (strcspn($row["Text"],"[]")=="0"){
 			$chatLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 			$fullLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			array_push($consoleChat, date("U",strtotime($row["Date"])));
 		//System console
 		}else{
+		array_push($consoleMsg, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
 		{
 //		print_r($matches);
@@ -294,13 +297,69 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //$uptimeHrs=floor(fmod($uptimeHrs,24));
 
 $secDiff = $lastDate - $firstDate;
+echo "<div style='display:none;' id='unixMin'>$firstDate</div>";
+echo "<div style='display:none;' id='unixMax'>$lastDate</div>";
 
-echo $firstDate." - ".$lastDate." : ".$secDiff." ". (($serverStats[1] - $serverStats[0])/$secDiff)."</br>";
+//echo $firstDate." - ".$lastDate." : ".$secDiff." ". (($serverStats[1] - $serverStats[0])/$secDiff)."</br>";
 
-foreach ($chat as $value)
+echo "<div style='display:none;' id='serverStatsArray'>";
+foreach ($serverStats as $value)
 {
-echo $value."</br>";
+echo "<span class='serverStartItem'>$value</span>";
 }
+echo "</div>";
+
+echo "<div style='display:none;' id='severeErrorArray'>";
+foreach ($severeErrors as $value)
+{
+echo "<span class='severeErrorItem'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='warningErrorArray'>";
+foreach ($warningErrors as $value)
+{
+echo "<span class='warningErrorItem'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='userChatArray'>";
+foreach ($userChat as $value)
+{
+echo "<span class='userChatItem'>$value</span>";
+}
+
+echo "</div>";
+
+echo "<div style='display:none;' id='consoleChatArray'>";
+foreach ($consoleChat as $value)
+{
+echo "<span class='consoleChatItem'>$value</span>";
+}
+
+echo "</div>";
+
+echo "<div style='display:none;' id='consoleMsgArray'>";
+foreach ($consoleMsg as $value)
+{
+echo "<span class='consoleMsgItem'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='hey0Array'>";
+foreach ($heyLogging as $value)
+{
+echo "<span class='hey0Item'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='runecraftArray'>";
+foreach ($runecraft as $value)
+{
+echo "<span class='runecraftItem'>$value</span>";
+}
+echo "</div>";
+
 //print_r($serverStats);
 
 echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='uptimeDay'>$uptimeDay</span>:<span id='uptimeHrs'>$uptimeHrs</span>:<span id='uptimeMin'>$uptimeMin</span>:<span id='uptimeSeconds'>$uptimeSeconds</span></div>";
@@ -309,15 +368,13 @@ echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='
 
 <button id="legend">Legend</button>
 <button id="stats">Stats</button>
-
-<div id="accordion">
-	<h3><a href="#">Image</a></h3>
-	<div>
-	<div><canvas id="grapher" width="1000" height="250">
+<button id="graphOpt">Graph Options</button>
+</br></br>
+	<div><canvas id="grapher" width="1010" height="150">
 	This text is displayed if your browser does not support HTML5 Canvas.
 	</canvas></div>
-	<div><button id="graphOpt">Options</button></div>
-	</div>
+
+<div id="accordion">
 	<h3><a href="#">Server</a></h3>
 	<div>
 			<?php// echo $serverLog; ?>
@@ -344,10 +401,11 @@ echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='
 	</div>
 	<h3><a href="#">Full Logs</a></h3>
 	<div>
-			<?php// echo $fullLog; ?>
+			<?php echo $fullLog; ?>
 	</div>
 </div>
-<div class='display:none' id="legendDialog" title="Color Legend">
+
+<div style='display:none' id="legendDialog" title="Color Legend">
 <div><span class="serverStart">Server Start / Stop</span></div>
 <div><span class="serverUptime">Server Uptime</span></div>
 <div><span class="serverUptimeBad">Server Uptime - Bad</span></div>
