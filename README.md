@@ -13,21 +13,21 @@ Settings are configured my editing the parser.settings file
 
 Current Settings:
 
-masterLogPath="<path to master log file>"
-	This is the path to the master log file
+     masterLogPath="<path to master log file>"
+This is the path to the master log file
 
-injectLogPath="<path to master inject file>"
-	This is the path to the inject log path. This log contains all data that has been injected into 
+     injectLogPath="<path to master inject file>"
+This is the path to the inject log path. This log contains all data that has been injected into 
 the sql database along with the hashcode, so basically a txt table of the INSERT command. 
 Plan on making this optional.
 
-displayFluff=1|0   
-	1=Display fluff text 
-	0=Hide text denoted as fluff in the fluff.txt file
+     displayFluff=1|0   
+1=Display fluff text  
+0=Hide text denoted as fluff in the fluff.txt file
 
-logDatabase="<name of database>"
+     logDatabase="<name of database>"
 
-logTableName="<name of the log table>"
+     logTableName="<name of the log table>"
 
 Example parser.settings:
 masterLogPath="/var/www/minecraft/logs/master-log.log"
@@ -40,8 +40,6 @@ When the lines are injected into sql via the parser, it will zero out the master
 This is to keep the filesize down of the master log file.
 
 css/default.css contains all of the styles for the color legend.
-css/mb.extruder.css contains styles for the extruder plugin
-
 
 SQL mechanics:
 
@@ -67,9 +65,13 @@ jobs
 
 
 Has functions to:
+
 Create the 'log' table				: commands.php createTable
+
 Drop the 'log' table				: commands.php dropTable
+
 Clear the 'log' table				: commands.php clearTable
+
 Inject the log data into the 'log' table	: commands.php inject
 
 
