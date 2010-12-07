@@ -46,6 +46,9 @@ color:white;
 font-size:1.5em;
 }
 
+.hide{
+display:none;
+}
 .logFont
 {
 font-size:small;

@@ -362,13 +362,13 @@ echo "</div>";
 
 //print_r($serverStats);
 
-echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='uptimeDay'>$uptimeDay</span>:<span id='uptimeHrs'>$uptimeHrs</span>:<span id='uptimeMin'>$uptimeMin</span>:<span id='uptimeSeconds'>$uptimeSeconds</span></div>";
+echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='uptimeDay'>$uptimeDay</span>:<span id='uptimeHrs'>$uptimeHrs</span>:<span id='uptimeMin'>$uptimeMin</span>:<span id='uptimeSeconds'>$uptimeSeconds</span></div>";
 //echo "<div id='uptime'>Total Server Uptime: <span id='uptimeDay'>$uptimeDay</span> days - $uptimeHrs hours, $uptimeMin minutes, $uptimeSeconds seconds</div>";
 ?>
 
-<button id="legend">Legend</button>
 <button id="stats">Stats</button>
-<button id="graphOpt">Graph Options</button>
+<button id="graphOpt">Graph</button>
+<button id="legend">Log</button>
 </br></br>
 	<div><canvas id="grapher" width="1010" height="150">
 	This text is displayed if your browser does not support HTML5 Canvas.
@@ -421,18 +421,18 @@ echo "<div id='uptimeDialog'><span id='uptimeWeek'>$uptimeWeek</span>:<span id='
 <div><span class="consoleMsg">Console Message</span></div>
 </div>
 
-<div class='display:none' id="graphDialog" title="Graph Options">
+<div style='display:none' id="graphDialog" title="Graph Options">
 <table>
-<tr><td><span class="serverStart2">Server Start/Stop</span></td><td><span id="severStartGraph"></span></td></tr>
-<tr><td><span class="severeError">Severe Error</span></td><td><span id="severeErrorGraph"></span></td></tr>
-<tr><td><span class="WarningError">Warning Error</span></td><td><span id="warningErrorGraph"></span></td></tr>
-<tr><td><span class="heyLogging">hey0 Logging</span></td><td><span id="heyLoggingGraph"></span></td></tr>
-<tr><td><span class="runecraft">Runecraft</span></td><td><span id="runecraftGraph"></span></td></tr>
-<tr><td><span class="userLogin">User Login</span></td><td><span id="userLoginGraph"></span></td></tr>
-<tr><td><span class="userLogout">User Logout</span></td><td><span id="userLogoutGraph"></span></td></tr>
-<tr><td><span class="userChat">User Chat</span></td><td><span id="userChatGraph"></span></td></tr>
-<tr><td><span class="consoleChat">Console Chat</span></td><td><span id="consoleChatGraph"></span></td></tr>
-<tr><td><span class="consoleMsg">Console Message</span></td><td><span id="consoleMsgGraph"></span></td></tr>
+<tr><td><span class="serverStart2">Server Start/Stop</span></td><td><span id="serverStartGraph"></span></td><td><span id="serverStartLog"></span></td></tr>
+<tr><td><span class="severeError">Severe Error</span></td><td><span id="severeErrorGraph"></span></td><td><span id="severeErrorLog"></span></td></tr>
+<tr><td><span class="WarningError">Warning Error</span></td><td><span id="warningErrorGraph"></span></td><td><span id="warningErrorLog"></span></td></tr>
+<tr><td><span class="heyLogging">hey0 Logging</span></td><td><span id="heyLoggingGraph"></span></td><td><span id="heyLoggingLog"></span></td></tr>
+<tr><td><span class="runecraft">Runecraft</span></td><td><span id="runecraftGraph"></span></td><td><span id="runecraftLog"></span></td></tr>
+<tr><td><span class="userLogin">User Login</span></td><td><span id="userLoginGraph"></span></td><td><span id="userLoginLog"></span></td></tr>
+<tr><td><span class="userLogout">User Logout</span></td><td><span id="userLogoutGraph"></span></td><td><span id="userLogoutLog"></span></td></tr>
+<tr><td><span class="userChat">User Chat</span></td><td><span id="userChatGraph"></span></td><td><span id="userChatLog"></span></td></tr>
+<tr><td><span class="consoleChat">Console Chat</span></td><td><span id="consoleChatGraph"></span></td><td><span id="consoleChatLog"></span></td></tr>
+<tr><td><span class="consoleMsg">Console Message</span></td><td><span id="consoleMsgGraph"></span></td><td><span id="consoleMsgLog"></span></td></tr>
 </table>
 </div>
 

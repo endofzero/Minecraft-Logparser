@@ -15,46 +15,270 @@ $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
 		unixMin = $("#unixMin").text();	
 		unixMax = $("#unixMax").text();	
-		$( "#severStartGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
+
+// Graph Buttons
+		$( "#serverStartGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#severeErrorGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#warningErrorGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#heyLoggingGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#runecraftGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#userLoginGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#userLogoutGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#userChatGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#consoleChatGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+		$( "#consoleMsgGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+
+// Log Buttons
+		$( "#serverStartLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+		.click(function() {
+			var options;
+			if ( $( this ).text() === "show" ) {
+			$('.serverStart').removeClass('hide');
+			$('.serverStop').removeClass('hide');
+				options = {
+					label: "hide",
+					icons: {
+						primary: "ui-icon-minus"
+					}
+				};
+			} else {
+			$('.serverStart').addClass('hide');
+			$('.serverStop').addClass('hide');
+				options = {
+					label: "show",
+					icons: {
+						primary: "ui-icon-plus"
+					}
+				};
+			}
+			$( this ).button( "option", options );
 		});
-		$( "#severeErrorGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#warningErrorGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#heyLoggingGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#runecraftGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#userLoginGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#userLogoutGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#userChatGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#consoleChatGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
-		$( "#consoleMsgGraph" ).button({
-		icons:{primary:"ui-icon-signal"},
-		text:false
-		});
+
+		$( "#severeErrorLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#warningErrorLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#heyLoggingLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#runecraftLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#userLoginLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#userLogoutLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#userChatLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#consoleChatLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
+		$( "#consoleMsgLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
+                .click(function() {
+                        var options;
+                        if ( $( this ).text() === "show" ) {
+                        $('.serverStart').removeClass('hide');
+                        $('.serverStop').removeClass('hide');
+                                options = {
+                                        label: "hide",
+                                        icons: {
+                                                primary: "ui-icon-minus"
+                                        }
+                                };
+                        } else {
+                        $('.serverStart').addClass('hide');
+                        $('.serverStop').addClass('hide');
+                                options = {
+                                        label: "show",
+                                        icons: {
+                                                primary: "ui-icon-plus"
+                                        }
+                                };
+                        }
+                        $( this ).button( "option", options );
+                });
+
 		$( "button" ).button();
 		$( "#graphDialog" ).dialog({
 			autoOpen: false,
