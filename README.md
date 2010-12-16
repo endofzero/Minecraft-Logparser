@@ -5,7 +5,6 @@ I can better run queries against that data.
 
 Connects to the same database as hey0's mod, 'minecraft' by default.
 
-=============
 Configuration
 =============
 
@@ -22,17 +21,19 @@ the sql database along with the hashcode, so basically a txt table of the INSERT
 Plan on making this optional.
 
      displayFluff=1|0   
+
 1=Display fluff text  
+
 0=Hide text denoted as fluff in the fluff.txt file
 
      logDatabase="<name of database>"
 
      logTableName="<name of the log table>"
 
-Example parser.settings:
-masterLogPath="/var/www/minecraft/logs/master-log.log"
-injectLogPath="/var/www/minecraft/inject.log"
-displayFluff=0
+*Example parser.settings:*
+     masterLogPath="/var/www/minecraft/logs/master-log.log"
+     injectLogPath="/var/www/minecraft/inject.log"
+     displayFluff=0
 
 
 Currently requires that the logs be output to a master file to parse correctly.
@@ -48,15 +49,14 @@ This allows for you to run the same inject on the same log without worry about a
 This also removes duplicate entries for commands that are spammed to the console within that second.
 
 SQL Table is created via the following query:
-CREATE TABLE logs(
-  PRIMARY KEY(Hash),
-  Date DATETIME,
-  Class VARCHAR(20),
-  Text VARCHAR(100),
-  Hash CHAR(32) NOT NULL)";
+     CREATE TABLE logs(
+       PRIMARY KEY(Hash),
+       Date DATETIME,
+       Class VARCHAR(20),
+       Text VARCHAR(100),
+       Hash CHAR(32) NOT NULL)";
 
 
-============
 commands.php
 ============
 
@@ -66,17 +66,22 @@ jobs
 
 Has functions to:
 
-Create the 'log' table				: commands.php createTable
+Create the 'log' table:
+     commands.php createTable
 
-Drop the 'log' table				: commands.php dropTable
+Drop the 'log' table: 
+     commands.php dropTable
 
-Clear the 'log' table				: commands.php clearTable
+Clear the 'log' table: 
+     commands.php clearTable
 
-Inject the log data into the 'log' table	: commands.php inject
+Inject the log data into the 'log' table: 
+     commands.php inject
 
+Example Cron Job
+================
+This is my actual cron job for logging capture.
 
-
-
-User logTime calculation needs same $uptime check
-
+# Update SQL logs every 15 minutes
+*/15 * * * * nice -n 20 ~/minecraft.sh logs >/dev/null 2>&1;sleep 2;~/Minecraft-Logparser/commands.php inject >/dev/null 2>&1
 
