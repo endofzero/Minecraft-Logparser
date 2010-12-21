@@ -221,7 +221,7 @@ while($row = mysql_fetch_array($result))
 		foreach ($userList as $user)
 		{
 			$user=explode('-',$user);
-			if (preg_match("/$user[0]/",trim($row["Text"]))
+			if (preg_match("/$user[0]/",trim($row["Text"])))
 			{
 //			echo "<span class='userLogin'> $user[0] </span> ";
 			}
