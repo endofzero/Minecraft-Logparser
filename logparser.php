@@ -422,10 +422,12 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 	<h3><a href="#">Full Logs</a></h3>
 	<div>
 			<?php
-
+$i=0;
 foreach (array_reverse($masterOutput) as $value)
 {
 echo $value;
+if ($i>1000){return;}
+$i++;
 }
 ?>
 	</div>
