@@ -3,3 +3,4 @@ injectLogPath="/var/www/minecraft/inject.log"
 displayFluff=0
 logTableName="logs"
 logDatabase="minecraft"
+maxLines=1000

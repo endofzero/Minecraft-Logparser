@@ -9,7 +9,7 @@ $parserSettings=parse_ini_file("parser.settings");
 $masterLogPath=$parserSettings['masterLogPath'];
 $injectLogPath=$parserSettings['injectLogPath'];
 $displayFluff=$parserSettings['displayFluff'];
-
+$maxLines=$parserSettings['maxLines'];
 function get_time_difference( $start, $end )
 {
     $uts['start']      =    strtotime( $start );
@@ -48,7 +48,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff;
+	global $displayFluff, $maxLines;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -426,7 +426,7 @@ $i=0;
 foreach (array_reverse($masterOutput) as $value)
 {
 echo $value;
-if ($i>1000){return;}
+if ($i>$maxLines){return;}
 $i++;
 }
 ?>
