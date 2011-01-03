@@ -1,6 +1,6 @@
 masterLogPath="/var/www/minecraft/logs/master-log.log"
 injectLogPath="/var/www/minecraft/inject.log"
-displayFluff=0
+displayFluff=1
 logTableName="logs"
 logDatabase="minecraft"
 maxLines=1000

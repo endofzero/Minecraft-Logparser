@@ -10,6 +10,7 @@ $masterLogPath=$parserSettings['masterLogPath'];
 $injectLogPath=$parserSettings['injectLogPath'];
 $displayFluff=$parserSettings['displayFluff'];
 $maxLines=$parserSettings['maxLines'];
+
 function get_time_difference( $start, $end )
 {
     $uts['start']      =    strtotime( $start );
@@ -58,8 +59,15 @@ function displayStats()
 	$runecraft = array();
 	$userChat = array();
 	$connects = array();
+
 	$masterOutput = array();
-	
+	$heyOutput = array();
+	$runecraftOutput = array();
+	$chatOutput = array();
+	$consoleOutput = array();
+	$errorOutput = array();
+	$serverOutput = array();
+		
 	$users = array();
 
 	$fluffArray = array();
@@ -110,112 +118,107 @@ $lastDate = 0;
 //$queryLogs = "SELECT * from logs where Date >= DATE_SUB(NOW(),INTERVAL 1 DAY) order by Date";
 $queryLogs = "SELECT * from logs order by Date";
 $result = mysql_query($queryLogs);
- $numRows=mysql_num_rows($result);
+$numRows=mysql_num_rows($result);
 if (mysql_num_rows($result) != 0)
 {
 while($row = mysql_fetch_array($result))
 {
 
-	//Server start
+//Server start
 	if (preg_match("/Starting minecraft server version/",trim($row["Text"]))>0)
 	{
 	if ($serverStart==1){
 		$diff=get_time_difference($startDate,$prevDate);
-		$serverLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
-		$fullLog.= "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>";
 
 		array_push($masterOutput, "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>");
+		array_push($serverOutput, "<div class='logFont serverUptimeBad'>Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']." - NO SHUTDOWN LOGGED <span class='timeStamp'>$startDate - $prevDate</span></div>");
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 //		echo date("U",strtotime($prevDate))." 0</br>";
 		array_push($serverStats, "0:".date("U",strtotime($prevDate)));
 	}
 	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+	array_push($serverOutput, "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
 //	echo date("U",strtotime($row["Date"]))." 1</br>";
 	array_push($serverStats, "1:".date("U",strtotime($row["Date"])));
 	$serverStart = 1;		
-	// Server Stop
+// Server Stop
 	}elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
 	{
 		$endDate=$row["Date"];
 		$diff=get_time_difference($startDate,$endDate);
 		$serverLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
 	array_push($masterOutput, "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>");
+	array_push($serverOutput, "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>");
 		$fullLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
 		$serverLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+	array_push($serverOutput, "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 //		echo date("U",strtotime($row["Date"]))." 0</br>";
 		array_push($serverStats, "0:".date("U",strtotime($row["Date"])));
 		$serverStart=0;
 
-	//Chat
+//Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
-	$chatLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-	$fullLog.= "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($userChat, date("U",strtotime($row["Date"])));
+		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($chatOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($userChat, date("U",strtotime($row["Date"])));
 
-	//Console command
+//Console command
 	}elseif (preg_match("/CONSOLE|Connected players:/",trim($row["Text"]))>0)
 	{
-		//User console command
+//User console command
 		if (strcspn($row["Text"],"[]")=="0"){
-			$chatLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-			$fullLog.= "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			array_push($masterOutput, "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+			array_push($chatOutput, "<div class='consoleChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 			array_push($consoleChat, date("U",strtotime($row["Date"])));
-		//System console
+//System console
 		}else{
 		array_push($consoleMsg, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
 		{
 //		print_r($matches);
 		$matches[2]= array_search(trim($matches[2]),$itemList);
-			$consoleLog .= "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
-	array_push($masterOutput, "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
-			$fullLog .= "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
+			array_push($masterOutput, "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
+			array_push($consoleOutput, "<div class='consoleMsg'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
 		}else{
-			$consoleLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-			$fullLog.= "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+			array_push($masterOutput, "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+			array_push($consoleOutput, "<div class='consoleMsg'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		}
 
 		}
-	//Severe error
+//Severe error
 	}elseif (preg_match("/SEVERE/",trim($row["Class"]))>0)
 	{
-		$errorLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($masterOutput, "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($errorOutput, "<div class='severeError'>".$row["Date"]." ".$row["Class"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($severeErrors, date("U",strtotime($row["Date"])));
-	//Warning error
+//Warning error
 	}elseif (preg_match("/WARNING/",trim($row["Class"]))>0)
 	{
-		$errorLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($masterOutput, "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($errorOutput, "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($warningErrors, date("U",strtotime($row["Date"])));
-	//Hey0 Command logging - logging=1
-	}elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter/",trim($row["Text"]))>0)
+
+//Hey0 Command logging - logging=1
+	}elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter|got a kit|Hey0 Server Mod Build/",trim($row["Text"]))>0)
 	{
 		array_push($heyLogging, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
 		{
 //		print_r($matches);
 		$matches[2]= array_search(trim($matches[2]),$itemList);
-		$hey0Log .= "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
-	array_push($masterOutput, "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
-		$fullLog .= "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>";
+		array_push($masterOutput, "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
+		array_push($heyOutput, "<div class='heyLogging'>".$row["Date"]." Giving $matches[1] some <span class='itemName'>$matches[2]</span></div>");
 		}else{
-		$hey0Log .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
-	array_push($masterOutput, "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog .= "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>";
+		array_push($masterOutput, "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($heyOutput, "<div class='heyLogging'>".$row["Date"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
 		}
-	//User Login 
+//User Login 
 	}elseif (preg_match("/logged in/",trim($row["Text"]))>0)
 	{
 		foreach ($userList as $user)
@@ -229,10 +232,9 @@ while($row = mysql_fetch_array($result))
 
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
 
-		$serverLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	//User Logout
+	array_push($serverOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+//User Logout
 	}elseif (preg_match("/lost connection|Disconnecting/",trim($row["Text"]))>0)
 	{
 		foreach ($userList as $user)
@@ -246,25 +248,23 @@ while($row = mysql_fetch_array($result))
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
 		$row["Text"]= preg_replace ( "/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/" , "*" , trim($row["Text"]));
 
-		$serverLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	// World Start
-	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks|Starting Minecraft server on/",trim($row["Text"]))>0)
+	array_push($serverOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+// World Start
+	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks|Starting Minecraft server on|your current classpath is/",trim($row["Text"]))>0)
 	{
-		$serverLog.= "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
-	// Runecraft
+	array_push($serverOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+// Runecraft
 	}elseif (preg_match("/Runecraft|used a|enchanted a/",trim($row["Text"]))>0)
 	{
-		$runecraftLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+	array_push($runecraftOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($runecraft, date("U",strtotime($row["Date"])));
 	//Default Print
 	}else{
-
+$displayFluff=1;
+					array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		$pattern = "/".implode("|", $fluffArray)."/is";
 
 			if (preg_match($pattern,trim($row["Text"]))>0)
@@ -272,15 +272,13 @@ while($row = mysql_fetch_array($result))
 			$fluffMatch=1;
 				if ($displayFluff==1)
 				{
-	array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-					$fullLog.= "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
+					array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 				}
 			}
 		$fluffCount++;
 		if ($fluffMatch==0)
 		{
-	array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
-			$fullLog .= $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>";
+			array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
 		}
 	}
 $logCount++;
@@ -315,6 +313,37 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //$uptimeSeconds=fmod($uptimeSeconds,60);
 //$uptimeMin=floor(fmod($uptimeMin,60));
 //$uptimeHrs=floor(fmod($uptimeHrs,24));
+
+//Build Text
+$i=0;
+foreach (array_reverse($masterOutput) as $value)
+{if ($i<=$maxLines){$masterText.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($heyOutput) as $value)
+{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($runecraftOutput) as $value)
+{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($chatOutput) as $value)
+{if ($i<=$maxLines){$chatText.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($consoleOutput) as $value)
+{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($errorOutput) as $value)
+{if ($i<=$maxLines){$errorText.=$value;}$i++;}
+
+$i=0;
+foreach (array_reverse($serverOutput) as $value)
+{if ($i<=$maxLines){$serverText.=$value;}$i++;}
+
+
 
 $secDiff = $lastDate - $firstDate;
 echo "<div style='display:none;' id='unixMin'>$firstDate</div>";
@@ -397,40 +426,33 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <div id="accordion">
 	<h3><a href="#">Server</a></h3>
 	<div>
-			<?php// echo $serverLog; ?>
+			<?php echo $serverText; ?>
 	</div>
 	<h3><a href="#">Error</a></h3>
 	<div>
-			<?php// echo $errorLog; ?>
+			<?php echo $errorText; ?>
 	</div>
 	<h3><a href="#">Chat</a></h3>
 	<div>
-			<?php// echo $chatLog; ?>
+			<?php echo $chatText; ?>
 	</div>
 	<h3><a href="#">Console</a></h3>
 	<div>
-			<?php// echo $consoleLog; ?>
+			<?php echo $consoleText; ?>
 	</div>
 	<h3><a href="#">Runecraft</a></h3>
 	<div>
-			<?php// echo $runecraftLog; ?>
+			<?php echo $runecraftText; ?>
 	</div>
 	<h3><a href="#">hey0</a></h3>
 	<div>
-			<?php// echo $hey0Log; ?>
+			<?php echo $hey0Text; ?>
 	</div>
 	<h3><a href="#">Full Logs</a></h3>
 	<div>
-			<?php
-$i=0;
-foreach (array_reverse($masterOutput) as $value)
-{
-echo $value;
-if ($i>$maxLines){return;}
-$i++;
-}
-?>
+			<?php echo $masterText; ?>
 	</div>
+
 </div>
 
 <div style='display:none' id="legendDialog" title="Color Legend">

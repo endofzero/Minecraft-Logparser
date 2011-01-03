@@ -121,7 +121,7 @@ function injectLogs(){
 
 global $masterLogPath, $injectLogPath, $logDatabase;
 
-$year = 2010;
+$year = 2011;
 $testArray = array();
 
 // Load log file into array
