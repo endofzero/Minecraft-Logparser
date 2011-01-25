@@ -404,25 +404,33 @@ var runecraftColor ="rgba(157,194,48,1)";
 var consoleMsgColor ="rgba(55,186,43,1)";
 var consoleChatColor ="rgba(40,173,173,1)";
 var uptimeColor ="rgba(100,100,100,1)";
+var activeUptimeColor ="rgba(38,41,79,1)";
 
 ctx.fillStyle = uptimeColor;
 hei=30;
 pos=0;
+var lastUptime=0;
 
 for (x in startArray)
 {
 	if (startArray[x].substring(0,1)==1){
 		mark=calcPixel(startArray[x].substring(2));
+		if (mark >= lastUptime){lastUptime=mark}
 		ctx.fillRect(mark,pos,1,hei);
 		startPixel=mark;
 	}
 	if (startArray[x].substring(0,1)==0){
 		mark=calcPixel(startArray[x].substring(2));
+		if (mark >= lastUptime){lastUptime=mark}
 		var pixelDiff = mark - startPixel;
 		if (pixelDiff == 0){pixelDiff=1;}
 		ctx.fillRect(startPixel,pos,pixelDiff,hei);
 	}
 }
+
+ctx.fillStyle = activeUptimeColor;
+lastUptime = lastUptime + 1;
+ctx.fillRect(lastUptime,pos,canvasWidth,hei);
 
 ctx.fillStyle = startColor;
 hei=14;

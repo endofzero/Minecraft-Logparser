@@ -6,10 +6,10 @@ require("/var/include/dbconnect.php");
 
 //Configuration
 $parserSettings=parse_ini_file("parser.settings");
-$masterLogPath=$parserSettings['masterLogPath'];
-$injectLogPath=$parserSettings['injectLogPath'];
-$displayFluff=$parserSettings['displayFluff'];
-$maxLines=$parserSettings['maxLines'];
+$masterLogPath=$parserSettings["masterLogPath"];
+$injectLogPath=$parserSettings["injectLogPath"];
+$displayFluff=$parserSettings["displayFluff"];
+$maxLines=$parserSettings["maxLines"];
 
 function get_time_difference( $start, $end )
 {
@@ -26,7 +26,7 @@ function get_time_difference( $start, $end )
                 $diff = $diff % 3600;
             if( $minutes=intval((floor($diff/60))) )
                 $diff = $diff % 60;
-            $diff    =    intval( $diff );            
+            $diff    =    intval( $diff );
             return( array('days'=>$days, 'hours'=>$hours, 'minutes'=>$minutes, 'seconds'=>$diff) );
         }
         else
@@ -67,7 +67,7 @@ function displayStats()
 	$consoleOutput = array();
 	$errorOutput = array();
 	$serverOutput = array();
-		
+
 	$users = array();
 
 	$fluffArray = array();
@@ -75,9 +75,9 @@ function displayStats()
 	$fluffArray=file("fluff.txt");
 	//Trim Array and quote for preg
 	array_walk($fluffArray,"trimArray");
-	
+
 	mysql_select_db("minecraft") or die("Unable to select Database");
-	
+
 	//Get userlist into Array
 	$queryUsers = "SELECT * from users";
 	$result = mysql_query($queryUsers);
@@ -143,7 +143,7 @@ while($row = mysql_fetch_array($result))
 	$startDate=$row["Date"];
 //	echo date("U",strtotime($row["Date"]))." 1</br>";
 	array_push($serverStats, "1:".date("U",strtotime($row["Date"])));
-	$serverStart = 1;		
+	$serverStart = 1;
 // Server Stop
 	}elseif (preg_match("/Stopping server/",trim($row["Text"]))>0)
 	{
@@ -204,8 +204,8 @@ while($row = mysql_fetch_array($result))
 		array_push($errorOutput, "<div class='warningError'>".$row["Date"]." ".$row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($warningErrors, date("U",strtotime($row["Date"])));
 
-//Hey0 Command logging - logging=1
-	}elseif (preg_match("/Command used by|tried command|teleported to|Giving .* some|Spawn position changed|created a lighter|got a kit|Hey0 Server Mod Build/",trim($row["Text"]))>0)
+//Bukkit Command logging
+	}elseif (preg_match("/issued server command/",trim($row["Text"]))>0)
 	{
 		array_push($heyLogging, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
@@ -255,18 +255,17 @@ while($row = mysql_fetch_array($result))
 	{
 	array_push($masterOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-// Runecraft
-	}elseif (preg_match("/Runecraft|used a|enchanted a/",trim($row["Text"]))>0)
+// Worldedit
+	}elseif (preg_match("/WorldEdit/",trim($row["Text"]))>0)
 	{
 	array_push($masterOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($runecraftOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($runecraft, date("U",strtotime($row["Date"])));
 	//Default Print
 	}else{
-$displayFluff=1;
-					array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+		array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		$pattern = "/".implode("|", $fluffArray)."/is";
-
+//		echo $pattern;
 			if (preg_match($pattern,trim($row["Text"]))>0)
 			{
 			$fluffMatch=1;
@@ -278,7 +277,7 @@ $displayFluff=1;
 		$fluffCount++;
 		if ($fluffMatch==0)
 		{
-			array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
+			//array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
 		}
 	}
 $logCount++;
@@ -286,7 +285,7 @@ $prevDate = $row["Date"];
 
 if ($firstDate==0){
 $firstDate = date("U",strtotime($row["Date"]));
-//echo date("U",strtotime($row["Date"]))."</br>";
+//echo date("U",strtotime($row["Date"]))."-".$row["Date"]."</br>";
 }
 
 if (date("U",strtotime($row["Date"]))>= $firstDate)
@@ -297,6 +296,9 @@ $lastDate = date("U",strtotime($row["Date"]));
 //echo $prevDate."::";
 }
 }
+$diff = $lastDate - $firstDate;
+//echo $firstDate." : ".$lastDate." - ".$diff;
+
 //Calc Base values
 $uptimeMin=$uptimeSeconds/60;
 $uptimeHrs=$uptimeMin/60;
@@ -440,11 +442,11 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 	<div>
 			<?php echo $consoleText; ?>
 	</div>
-	<h3><a href="#">Runecraft</a></h3>
+	<h3><a href="#">WorldEdit</a></h3>
 	<div>
 			<?php echo $runecraftText; ?>
 	</div>
-	<h3><a href="#">hey0</a></h3>
+	<h3><a href="#">Bukkit</a></h3>
 	<div>
 			<?php echo $hey0Text; ?>
 	</div>
@@ -462,8 +464,8 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <div><span class="worldStart">World Start</span></div>
 <div><span class="severeError">Severe Error</span></div>
 <div><span class="WarningError">Warning Error</span></div>
-<div><span class="heyLogging">hey0 Logging</span></div>
-<div><span class="runecraft">Runecraft</span></div>
+<div><span class="heyLogging">Bukkit Logging</span></div>
+<div><span class="runecraft">WorldEdit</span></div>
 <div><span class="userLogin">User Login</span></div>
 <div><span class="userLogout">User Logout</span></div>
 <div><span class="userChat">User Chat</span></div>
@@ -476,8 +478,8 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <tr><td><span class="serverStart2">Server Start/Stop</span></td><td><span id="serverStartGraph"></span></td><td><span id="serverStartLog"></span></td></tr>
 <tr><td><span class="severeError">Severe Error</span></td><td><span id="severeErrorGraph"></span></td><td><span id="severeErrorLog"></span></td></tr>
 <tr><td><span class="WarningError">Warning Error</span></td><td><span id="warningErrorGraph"></span></td><td><span id="warningErrorLog"></span></td></tr>
-<tr><td><span class="heyLogging">hey0 Logging</span></td><td><span id="heyLoggingGraph"></span></td><td><span id="heyLoggingLog"></span></td></tr>
-<tr><td><span class="runecraft">Runecraft</span></td><td><span id="runecraftGraph"></span></td><td><span id="runecraftLog"></span></td></tr>
+<tr><td><span class="heyLogging">Bukkit Logging</span></td><td><span id="heyLoggingGraph"></span></td><td><span id="heyLoggingLog"></span></td></tr>
+<tr><td><span class="runecraft">WorldEdit</span></td><td><span id="runecraftGraph"></span></td><td><span id="runecraftLog"></span></td></tr>
 <tr><td><span class="userLogin">User Login</span></td><td><span id="userLoginGraph"></span></td><td><span id="userLoginLog"></span></td></tr>
 <tr><td><span class="userLogout">User Logout</span></td><td><span id="userLogoutGraph"></span></td><td><span id="userLogoutLog"></span></td></tr>
 <tr><td><span class="userChat">User Chat</span></td><td><span id="userChatGraph"></span></td><td><span id="userChatLog"></span></td></tr>

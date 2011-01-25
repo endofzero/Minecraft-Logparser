@@ -43,10 +43,10 @@ This is a command line PHP script with one option.
 		injectLogs();
 		break;
 	case "clearTable":
-		injectLogs();
+		clearTable();
 		break;
 	case "createTable":
-		injectLogs();
+		createTable();
 		break;
 	default:
 ?>
