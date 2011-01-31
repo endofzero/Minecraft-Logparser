@@ -4,3 +4,5 @@ displayFluff=0
 logTableName="logs"
 logDatabase="minecraft"
 maxLines=1000
+hideIP=1
+logDirection="reverse"

@@ -10,6 +10,9 @@ $masterLogPath=$parserSettings["masterLogPath"];
 $injectLogPath=$parserSettings["injectLogPath"];
 $displayFluff=$parserSettings["displayFluff"];
 $maxLines=$parserSettings["maxLines"];
+$hideIP=$parserSettings["hideIP"];
+$logDirection=$parserSettings["logDirection"];
+
 
 function get_time_difference( $start, $end )
 {
@@ -68,6 +71,8 @@ function displayStats()
 	$errorOutput = array();
 	$serverOutput = array();
 
+	$userStats = array ();
+
 	$users = array();
 
 	$fluffArray = array();
@@ -82,14 +87,16 @@ function displayStats()
 	$queryUsers = "SELECT * from users";
 	$result = mysql_query($queryUsers);
 	$userList= array();
+	$idCnt = 0;
 	if (mysql_num_rows($result) != 0)
  	{
 		while($row = mysql_fetch_array($result))
 		{
-   		array_push($userList, trim($row['name'])."-".trim($row['groups']));
+   		array_push($userList, $idCnt.":".trim($row['name'])."-".trim($row['groups']));
+		$idCnt++;
 		}
 	}
-	array_walk($userList,"trimArray");
+//	array_walk($userList,"trimArray");
 //	print_r($userList);
 
 	//Get item list into Array
@@ -106,10 +113,12 @@ function displayStats()
 	}
 	array_walk($itemList,"trimArray");
 //	print_r($itemList);
+//	print_r($userList);
 
 $logCount = 0;
 $serverStart = -1;
 $prevDate = "";
+$prevUserDate = "";
 $uptimeSeconds = 0;
 
 $firstDate = 0;
@@ -224,14 +233,16 @@ while($row = mysql_fetch_array($result))
 		foreach ($userList as $user)
 		{
 			$user=explode('-',$user);
-			if (preg_match("/$user[0]/",trim($row["Text"])))
+			$user=explode(':',$user[0]);
+//	print_r($user);
+			if (preg_match("/$user[1]/",trim($row["Text"])))
 			{
 //			echo "<span class='userLogin'> $user[0] </span> ";
+				array_push($userStats, "$user[0]:1:".date("U",strtotime($prevDate)));
 			}
 		}
 
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
-
 	array_push($masterOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 //User Logout
@@ -240,14 +251,17 @@ while($row = mysql_fetch_array($result))
 		foreach ($userList as $user)
 		{
 			$user=explode('-',$user);
-			if (preg_match("/$user[0]/",trim($row["Text"])))
+			$user=explode(':',$user[0]);
+			if (preg_match("/$user[1]/",trim($row["Text"])))
 			{
 //			echo "<span class='userLogout'> $user[0] </span>";
+				array_push($userStats, "$user[0]:0:".date("U",strtotime($prevDate)));
 			}
 		}
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
 		$row["Text"]= preg_replace ( "/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/" , "*" , trim($row["Text"]));
 
+//	array_push($userStats, "0:".date("U",strtotime($prevDate)));
 	array_push($masterOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 // World Start
@@ -292,6 +306,7 @@ if (date("U",strtotime($row["Date"]))>= $firstDate)
 {
 $lastDate = date("U",strtotime($row["Date"]));
 }
+//print_r($userStats);
 //echo $row["Date"]."</br>";
 //echo $prevDate."::";
 }
@@ -317,6 +332,7 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //$uptimeHrs=floor(fmod($uptimeHrs,24));
 
 //Build Text
+
 $i=0;
 foreach (array_reverse($masterOutput) as $value)
 {if ($i<=$maxLines){$masterText.=$value;}$i++;}
@@ -348,8 +364,10 @@ foreach (array_reverse($serverOutput) as $value)
 
 
 $secDiff = $lastDate - $firstDate;
+$userCount = count($userList);
 echo "<div style='display:none;' id='unixMin'>$firstDate</div>";
 echo "<div style='display:none;' id='unixMax'>$lastDate</div>";
+echo "<div style='display:none;' id='userCount'>$userCount</div>";
 
 //echo $firstDate." - ".$lastDate." : ".$secDiff." ". (($serverStats[1] - $serverStats[0])/$secDiff)."</br>";
 
@@ -357,6 +375,13 @@ echo "<div style='display:none;' id='serverStatsArray'>";
 foreach ($serverStats as $value)
 {
 echo "<span class='serverStartItem'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='userStatsArray'>";
+foreach ($userStats as $value)
+{
+echo "<span class='userStatsItem'>$value</span>";
 }
 echo "</div>";
 
@@ -421,7 +446,7 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <button id="graphOpt">Graph</button>
 <button id="legend">Log</button>
 </br></br>
-	<div><canvas id="grapher" width="1010" height="150">
+	<div><canvas id="grapher" width="1010" height="250">
 	This text is displayed if your browser does not support HTML5 Canvas.
 	</canvas></div>
 

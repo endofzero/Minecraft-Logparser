@@ -1,9 +1,11 @@
 var ctx;
 var unixMin;
 var unixMax;
+var userCount;
 var canvasWidth=1000;
 var userChatArray = new Array();
 var startArray = new Array();
+var userArray = new Array();
 var severeArray = new Array();
 var warningArray = new Array();
 var consoleMsgArray = new Array();
@@ -15,6 +17,7 @@ $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
 		unixMin = $("#unixMin").text();	
 		unixMax = $("#unixMax").text();	
+		userCount = $("#userCount").text();
 
 // Graph Buttons
 		$( "#serverStartGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
@@ -375,11 +378,17 @@ function createArray()
 	$('.runecraftItem').each(function(index) {
 		runecraftArray.push($(this).text());
 	});
+	$('.userStatsItem').each(function(index) {
+		userArray.push($(this).text());
+	});
+	$('.user2StatsItem').each(function(index) {
+		user2Array.push($(this).text());
+	});
 
-	$('#userChatArray').remove();
-	$('#severeErrorArray').remove();
-	$('#warningErrorArray').remove();
-	$('#serverStatsArray').remove();
+//	$('#userChatArray').remove();
+//	$('#severeErrorArray').remove();
+//	$('#warningErrorArray').remove();
+//	$('#serverStatsArray').remove();
 //	$('#consoleChatArray').remove();
 //	$('#consoleMsgArray').remove();
 //	$('#hey0Array').remove();
@@ -506,6 +515,37 @@ for (x in consoleMsgArray)
 {
 	mark=calcPixel(consoleMsgArray[x]);
 	ctx.fillRect(mark,pos,1,hei);
+}
+
+ctx.fillStyle = consoleChatColor;
+pos= pos + (hei+3);
+
+
+// If USER COUNT IS N THEN PROCESS THE NEXT USER INFO< OTHERWISE NOOP
+
+for (i=0;i<=(userCount-1);i++)
+{
+
+for (x in userArray)
+{
+	if (userArray[x].substring(2,3)==1 && userArray[x].substring(0,1)==i){
+		mark=calcPixel(userArray[x].substring(4));
+		if (mark >= lastUptime){lastUptime=mark}
+		ctx.fillRect(mark,pos,1,hei);
+		startPixel=mark;
+	}
+	if (userArray[x].substring(2,3)==0 && userArray[x].substring(0,1)==i){
+		mark=calcPixel(userArray[x].substring(4));
+		if (mark >= lastUptime){lastUptime=mark}
+		var pixelDiff = mark - startPixel;
+		if (pixelDiff == 0){pixelDiff=1;}
+		ctx.fillRect(startPixel,pos,pixelDiff,hei);
+	}
+}
+
+ctx.fillStyle = consoleChatColor;
+pos= pos + (hei+3);
+
 }
 
 return;
