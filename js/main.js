@@ -6,6 +6,7 @@ var canvasWidth=1000;
 var userChatArray = new Array();
 var startArray = new Array();
 var userArray = new Array();
+var nameArray = new Array();
 var severeArray = new Array();
 var warningArray = new Array();
 var consoleMsgArray = new Array();
@@ -381,8 +382,8 @@ function createArray()
 	$('.userStatsItem').each(function(index) {
 		userArray.push($(this).text());
 	});
-	$('.user2StatsItem').each(function(index) {
-		user2Array.push($(this).text());
+	$('.userNameItem').each(function(index) {
+		nameArray.push($(this).text());
 	});
 
 //	$('#userChatArray').remove();
@@ -517,14 +518,32 @@ for (x in consoleMsgArray)
 	ctx.fillRect(mark,pos,1,hei);
 }
 
-ctx.fillStyle = "rgba(224,152,27,1)";
-pos= pos + (hei+3);
-
+//Set start user colors
+r=224
+g=157
+b=27
 
 // If USER COUNT IS N THEN PROCESS THE NEXT USER INFO< OTHERWISE NOOP
 
 for (i=0;i<=(userCount-1);i++)
 {
+
+ctx.fillStyle = "rgba("+r+","+g+","+b+",1)";
+pos= pos + (hei+3);
+
+ctx.shadowOffsetX = 1;
+ctx.shadowOffsetY = 1;
+ctx.shadowBlur = 1;
+ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
+ctx.font = "13px Times New Roman";
+ctx.fillText(nameArray[i].substring(2), 3, pos+12);
+
+ctx.shadowOffsetX = 0;
+ctx.shadowOffsetY = 0;
+ctx.shadowBlur = 0;
+ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+g= g-80
+b= b+30
 
 for (x in userArray)
 {
@@ -542,10 +561,6 @@ for (x in userArray)
 		ctx.fillRect(startPixel,pos,pixelDiff,hei);
 	}
 }
-
-ctx.fillStyle = "rgba(224,83,27,1)";
-pos= pos + (hei+3);
-
 }
 
 return;

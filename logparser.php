@@ -381,6 +381,15 @@ echo "<span class='serverStartItem'>$value</span>";
 }
 echo "</div>";
 
+echo "<div style='display:none;' id='userNameArray'>";
+foreach ($userList as $value)
+{
+$value=explode('-',$value);
+
+echo "<span class='userNameItem'>$value[0]</span>";
+}
+echo "</div>";
+
 echo "<div style='display:none;' id='userStatsArray'>";
 foreach ($userStats as $value)
 {
