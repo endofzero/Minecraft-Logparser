@@ -528,15 +528,16 @@ b=27
 for (i=0;i<=(userCount-1);i++)
 {
 
-ctx.fillStyle = "rgba("+r+","+g+","+b+",1)";
 pos= pos + (hei+3);
-
+ctx.fillStyle = "rgba("+r+","+g+","+b+",1)";
 ctx.shadowOffsetX = 1;
 ctx.shadowOffsetY = 1;
 ctx.shadowBlur = 1;
-ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
-ctx.font = "13px Times New Roman";
+//ctx.shadowColor = "rgba(255, 255, 255, .75)";
+ctx.font = "15px Times New Roman";
+ctx.globalCompositeOperation ="source-over"
 ctx.fillText(nameArray[i].substring(2), 3, pos+12);
+ctx.globalCompositeOperation ="destination-over"
 
 ctx.shadowOffsetX = 0;
 ctx.shadowOffsetY = 0;
