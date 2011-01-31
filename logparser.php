@@ -13,6 +13,9 @@ $maxLines=$parserSettings["maxLines"];
 $hideIP=$parserSettings["hideIP"];
 $logDirection=$parserSettings["logDirection"];
 
+$logTableName=$parserSettings["logTableName"];
+$logDatabase=$parserSettings["logDatabase"];
+
 
 function get_time_difference( $start, $end )
 {
@@ -52,7 +55,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines;
+	global $displayFluff, $maxLines, $logTableName, $logDatabase;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -81,7 +84,7 @@ function displayStats()
 	//Trim Array and quote for preg
 	array_walk($fluffArray,"trimArray");
 
-	mysql_select_db("minecraft") or die("Unable to select Database");
+	mysql_select_db($logDatabase) or die("Unable to select Database: $logDatabase");
 
 	//Get userlist into Array
 	$queryUsers = "SELECT * from users";
@@ -125,7 +128,7 @@ $firstDate = 0;
 $lastDate = 0;
 
 //$queryLogs = "SELECT * from logs where Date >= DATE_SUB(NOW(),INTERVAL 1 DAY) order by Date";
-$queryLogs = "SELECT * from logs order by Date";
+$queryLogs = "SELECT * from $logTableName order by Date";
 $result = mysql_query($queryLogs);
 $numRows=mysql_num_rows($result);
 if (mysql_num_rows($result) != 0)
@@ -238,7 +241,7 @@ while($row = mysql_fetch_array($result))
 			if (preg_match("/$user[1]/",trim($row["Text"])))
 			{
 //			echo "<span class='userLogin'> $user[0] </span> ";
-				array_push($userStats, "$user[0]:1:".date("U",strtotime($prevDate)));
+				array_push($userStats, "$user[0]:1:".date("U",strtotime($row["Date"])));
 			}
 		}
 
@@ -255,7 +258,7 @@ while($row = mysql_fetch_array($result))
 			if (preg_match("/$user[1]/",trim($row["Text"])))
 			{
 //			echo "<span class='userLogout'> $user[0] </span>";
-				array_push($userStats, "$user[0]:0:".date("U",strtotime($prevDate)));
+				array_push($userStats, "$user[0]:0:".date("U",strtotime($row["Date"])));
 			}
 		}
 		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));

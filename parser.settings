@@ -3,6 +3,6 @@ injectLogPath="/var/www/minecraft/inject.log"
 displayFluff=0
 logTableName="logs"
 logDatabase="minecraft"
-maxLines=1000
+maxLines=5000
 hideIP=1
 logDirection="reverse"

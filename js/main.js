@@ -517,7 +517,7 @@ for (x in consoleMsgArray)
 	ctx.fillRect(mark,pos,1,hei);
 }
 
-ctx.fillStyle = consoleChatColor;
+ctx.fillStyle = "rgba(224,152,27,1)";
 pos= pos + (hei+3);
 
 
@@ -543,7 +543,7 @@ for (x in userArray)
 	}
 }
 
-ctx.fillStyle = consoleChatColor;
+ctx.fillStyle = "rgba(224,83,27,1)";
 pos= pos + (hei+3);
 
 }
