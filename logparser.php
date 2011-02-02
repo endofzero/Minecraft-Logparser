@@ -55,7 +55,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines, $logTableName, $logDatabase;
+	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -245,7 +245,9 @@ while($row = mysql_fetch_array($result))
 			}
 		}
 
-		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+		if ($hideIP!=0){
+			$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+		}
 	array_push($masterOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 //User Logout
@@ -261,9 +263,10 @@ while($row = mysql_fetch_array($result))
 				array_push($userStats, "$user[0]:0:".date("U",strtotime($row["Date"])));
 			}
 		}
-		$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
+		if ($hideIP!=0){
+			$row["Text"]= preg_replace ( "/\[(.*)\]/" , "" , trim($row["Text"]));
 		$row["Text"]= preg_replace ( "/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/" , "*" , trim($row["Text"]));
-
+		}
 //	array_push($userStats, "0:".date("U",strtotime($prevDate)));
 	array_push($masterOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
