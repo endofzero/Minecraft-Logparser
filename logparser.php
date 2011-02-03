@@ -460,7 +460,12 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <button id="stats">Stats</button>
 <button id="graphOpt">Graph</button>
 <button id="legend">Log</button>
-</br></br>
+<p>
+	<label for="amount">View (%):</label>
+	<input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold; width:70px;" />
+</p>
+
+<div id="slider-range" style="width:1010px;"></div></br>
 	<div><canvas id="grapher" width="1010" height="250">
 	This text is displayed if your browser does not support HTML5 Canvas.
 	</canvas></div>
