@@ -174,6 +174,13 @@ while($row = mysql_fetch_array($result))
 		array_push($serverStats, "0:".date("U",strtotime($row["Date"])));
 		$serverStart=0;
 
+//Disconnections (haven't logged in yet)
+
+	}elseif (preg_match("/Disconnecting/",trim($row["Text"]))>0)
+	{
+		array_push($masterOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+        	array_push($serverOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+
 //Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
 		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
@@ -251,7 +258,7 @@ while($row = mysql_fetch_array($result))
 	array_push($masterOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogin'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 //User Logout
-	}elseif (preg_match("/lost connection|Disconnecting/",trim($row["Text"]))>0)
+	}elseif (preg_match("/lost connection/",trim($row["Text"]))>0)
 	{
 		foreach ($userList as $user)
 		{

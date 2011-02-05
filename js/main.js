@@ -1,6 +1,8 @@
 var ctx;
 var unixMin;
 var unixMax;
+var drawMin;
+var drawMax;
 var userCount;
 var canvasWidth=1000;
 var userChatArray = new Array();
@@ -18,6 +20,8 @@ $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
 		unixMin = $("#unixMin").text();	
 		unixMax = $("#unixMax").text();	
+		drawMin = unixMin;
+		drawMax = unixMax;
 		userCount = $("#userCount").text();
 
 // Graph Buttons
@@ -323,14 +327,17 @@ $(document).ready(function(){
 		$( "#slider-range" ).slider({
 			range: true,
 			min: 0,
-			max: 100,
-			values: [ 0, 100 ],
+			max: 1000,
+			values: [ 0, 1000 ],
 			slide: function( event, ui ) {
-				$( "#amount" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+				$( "#amount" ).val( "" + (ui.values[ 0 ]/10) + " - " + (ui.values[ 1 ]/10) );
+			},
+			change: function( event, ui ) {
+				setScale((ui.values[ 0 ]/10), (ui.values[ 1 ]/10));
+				draw();
 			}
 		});
-		$( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
-			" - " + $( "#slider-range" ).slider( "values", 1 ) );
+		$( "#amount" ).val( "0 - 100" );
 		pushInfo();
    });
 
@@ -338,6 +345,11 @@ function pushInfo(){
 createArray();
 draw();
 extractUptime();
+}
+
+function setScale(percentMin, percentMax){
+alert(percentMin+" "+percentMax);
+
 }
 
 function extractUptime(){
@@ -355,8 +367,8 @@ function extractUptime(){
 
 function calcPixel(unixTime)
 {
-var base = unixMax - unixMin;
-var offset = unixTime - unixMin;
+var base = drawMax - drawMin;
+var offset = unixTime - drawMin;
 var percent = offset / base;
 var pixel = Math.floor(percent*canvasWidth);
 if (pixel<1){pixel=1;}
