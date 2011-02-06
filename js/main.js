@@ -18,8 +18,8 @@ var runecraftArray = new Array();
 
 $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
-		unixMin = $("#unixMin").text();	
-		unixMax = $("#unixMax").text();	
+		unixMin = parseFloat($("#unixMin").text());	
+		unixMax = parseFloat($("#unixMax").text());	
 		drawMin = unixMin;
 		drawMax = unixMax;
 		userCount = $("#userCount").text();
@@ -348,7 +348,14 @@ extractUptime();
 }
 
 function setScale(percentMin, percentMax){
-alert(percentMin+" "+percentMax);
+//alert(percentMin+" "+percentMax);
+var base = unixMax - unixMin;
+var minDiff = Math.floor((percentMin/100)*base);
+var maxDiff = Math.floor((percentMax/100)*base);
+//alert(minDiff+" "+maxDiff);
+drawMin = (unixMin+minDiff);
+drawMax = unixMin+maxDiff;
+//alert(drawMin);
 
 }
 
@@ -443,6 +450,9 @@ ctx.fillStyle = uptimeColor;
 hei=30;
 pos=0;
 var lastUptime=0;
+
+ctx.globalCompositeOperation ="source-over"
+ctx.clearRect(0,0,2000,2000);
 
 for (x in startArray)
 {
