@@ -584,6 +584,8 @@ ctx.shadowOffsetY = 1;
 ctx.shadowBlur = 1;
 //ctx.shadowColor = "rgba(255, 255, 255, .75)";
 ctx.font = "15px Times New Roman";
+//nameArray[0] = '1:Player 1';
+//nameArray[1] = '1:Player 2';
 ctx.globalCompositeOperation ="source-over"
 ctx.fillText(nameArray[i].substring(2), 3, pos+12);
 ctx.globalCompositeOperation ="destination-over"

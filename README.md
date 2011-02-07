@@ -18,7 +18,10 @@ This is the path to the master log file
      injectLogPath="<path to master inject file>"
 This is the path to the inject log path. This log contains all data that has been injected into 
 the sql database along with the hashcode, so basically a txt table of the INSERT command. 
-Plan on making this optional.
+
+     textInject=1|0
+
+This either turns on (1) or off (0) the logging of the injections into the text file. Default is off.
 
      displayFluff=1|0   
 
@@ -33,8 +36,12 @@ Plan on making this optional.
 *Example parser.settings:*
      masterLogPath="/var/www/minecraft/logs/master-log.log"
      injectLogPath="/var/www/minecraft/inject.log"
+     textInject=1
      displayFluff=0
-
+     logTableName="logs"
+     logDatabase="minecraft"
+     maxLines=1000
+     hideIP=1
 
 Currently requires that the logs be output to a master file to parse correctly.
 When the lines are injected into sql via the parser, it will zero out the master log file if there are no errors.
@@ -61,7 +68,8 @@ commands.php
 ============
 
 commands.php is responsible for all of the data pushing. It is command line only as to allow for cron 
-jobs
+jobs. I would highly recommend you be very picky about which user is allowed to run command.php as it
+has the ability to drop your log table.
 
 
 Has functions to:
@@ -78,10 +86,11 @@ Clear the 'log' table:
 Inject the log data into the 'log' table: 
      commands.php inject
 
+
 Example Cron Job
 ================
 This is my actual cron job for logging capture.
 
-# Update SQL logs every 15 minutes
-*/15 * * * * nice -n 20 ~/minecraft.sh logs >/dev/null 2>&1;sleep 2;~/Minecraft-Logparser/commands.php inject >/dev/null 2>&1
+     # Update SQL logs every 15 minutes
+     */15 * * * * nice -n 20 ~/minecraft.sh logs >/dev/null 2>&1;sleep 2;~/Minecraft-Logparser/commands.php inject >/dev/null 2>&1
 

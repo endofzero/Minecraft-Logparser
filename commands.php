@@ -7,14 +7,14 @@ require("/var/include/dbconnect.php");
 
 //Configuration
 $parserSettings=parse_ini_file("parser.settings");
-$masterLogPath=$parserSettings['masterLogPath'];
-$injectLogPath=$parserSettings['injectLogPath'];
+$masterLogPath=$parserSettings["masterLogPath"];
+$injectLogPath=$parserSettings["injectLogPath"];
+$textInject=$parserSettings["textInject"];
 
 $logDatabase=$parserSettings['logDatabase'];
 $logTableName=$parserSettings['logTableName'];
 
-if ($argc != 2 || in_array($argv[1], array('--help', '-help', '-h', 
-'-?'))) {
+if ($argc != 2 || in_array($argv[1], array('--help', '-help', '-h','-?'))) {
 ?>
 
 This is a command line PHP script with one option.
@@ -26,12 +26,12 @@ This is a command line PHP script with one option.
   inject : Will inject the logs into mysql based
            on the settings in parser.settings
 
-  clearTable ZzC13arzZ : Will clear the table 
-           of all data, you must enter in the 
+  clearTable ZzC13arzZ : Will clear the table
+           of all data, you must enter in the
 	   confirm code.
 
-  createTable : Creates the table in SQL 
-           
+  createTable : Creates the table in SQL
+
   With the --help, -help, -h,
   or -? options, you can get this help.
 
@@ -119,7 +119,7 @@ global $logDatabase;
 
 function injectLogs(){
 
-global $masterLogPath, $injectLogPath, $logDatabase;
+global $masterLogPath, $injectLogPath, $logDatabase, $textInject;
 
 $year = 2011;
 $testArray = array();
@@ -161,29 +161,28 @@ $class = trim(substr($value,0,$classMarker));
 
 // Remove the class from the value
 $value=substr($value,$classMarker,$lenDiff);
-
 $value=trim($value);
 $fluffhash=md5(strtoupper(trim($value)));
 //echo $dateTime." ".$class." ".htmlspecialchars(trim($value))." : $hash </br>";
 
 mysql_select_db($logDatabase) or die('Unable to select the Database');
-	$sql = "INSERT INTO logs(Date, Class, Text, Hash) VALUES ('$dateTime', '$class', 
-'".addslashes($value)."','$hash')";
+	$sql = "INSERT INTO logs(Date, Class, Text, Hash) VALUES ('$dateTime', '$class', '".addslashes($value)."','$hash')";
 
 //echo $sql;
 	// Execute query
 	if (mysql_query($sql))
 	{
 		$outStr = $dateTime ." ".$class." ".$value." ".$hash."\n";
-		$output = file_put_contents($injectLogPath,$outStr,FILE_APPEND);
+		if (textInject==1){
+			$output = file_put_contents($injectLogPath,$outStr,FILE_APPEND);
+		}
 		$injectCount++;
 	}else{
 		if (preg_match("/Duplicate/",trim(mysql_error()))>0)
 		{
 			$dupeCount++;
 		}else{
-			$errorList .= "Error: " . mysql_error() . "('$dateTime', '$class', 
-'".htmlspecialchars($value)."'\n";
+			$errorList .= "Error: " . mysql_error() . "('$dateTime', '$class', '".htmlspecialchars($value)."'\n";
 			$errorCount++;
 		}
 	}
