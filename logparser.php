@@ -468,8 +468,8 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <button id="graphOpt">Graph</button>
 <button id="legend">Log</button>
 <p>
-	<label for="amount">View (%):</label>
-	<input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold; width:70px;" />
+	<label for="amount">Range:</label>
+	<span id="amount" style="border:0; color:#f6931f; font-weight:bold; width:70px;" />
 </p>
 
 <div id="slider-range" style="width:1010px;"></div></br>

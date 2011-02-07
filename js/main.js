@@ -330,14 +330,15 @@ $(document).ready(function(){
 			max: 1000,
 			values: [ 0, 1000 ],
 			slide: function( event, ui ) {
-				$( "#amount" ).val( "" + (ui.values[ 0 ]/10) + " - " + (ui.values[ 1 ]/10) );
+				$( "#amount" ).html( convertPercent((ui.values[ 0 ]/10)) + " - " + convertPercent((ui.values[ 1 ]/10)) );
+				
 			},
 			change: function( event, ui ) {
 				setScale((ui.values[ 0 ]/10), (ui.values[ 1 ]/10));
 				draw();
 			}
 		});
-		$( "#amount" ).val( "0 - 100" );
+		$( "#amount" ).html( convertUnix(unixMin)+" - "+convertUnix(unixMax));
 		pushInfo();
    });
 
@@ -357,6 +358,21 @@ drawMin = (unixMin+minDiff);
 drawMax = unixMin+maxDiff;
 //alert(drawMin);
 
+}
+
+function convertUnix(unixTime){
+var myDate = new Date( unixTime *1000);
+return myDate.toDateString()+" "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds();
+}
+
+function convertPercent(percent){
+var base = unixMax - unixMin;
+var minDiff = Math.floor((percent/100)*base);
+dateValue = (unixMin+minDiff);
+//return dateValue;
+
+var myDate = new Date( dateValue *1000);
+return myDate.toDateString()+" "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds();
 }
 
 function extractUptime(){
