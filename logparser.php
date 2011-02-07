@@ -466,11 +466,11 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 
 <button id="stats">Stats</button>
 <button id="graphOpt">Graph</button>
-<button id="legend">Log</button>
-<p>
-	<label for="amount">Range:</label>
-	<span id="amount" style="border:0; color:#f6931f; font-weight:bold; width:70px;" />
-</p>
+<button id="legend">Log</button><div />
+<div style="width:1010px;">
+	<span id="startRange" style="color:#f6931f; font-weight:bold;"></span>
+	<span id="endRange" style="color:#f6931f; font-weight:bold;float:right;right:0px;position:relative;"></span>
+</div>
 
 <div id="slider-range" style="width:1010px;"></div></br>
 	<div><canvas id="grapher" width="1010" height="250">

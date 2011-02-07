@@ -330,7 +330,8 @@ $(document).ready(function(){
 			max: 1000,
 			values: [ 0, 1000 ],
 			slide: function( event, ui ) {
-				$( "#amount" ).html( convertPercent((ui.values[ 0 ]/10)) + " - " + convertPercent((ui.values[ 1 ]/10)) );
+				$( "#startRange" ).html(convertPercent((ui.values[ 0 ]/10)));
+				$( "#endRange" ).html(convertPercent((ui.values[ 1 ]/10)));
 				
 			},
 			change: function( event, ui ) {
@@ -338,7 +339,8 @@ $(document).ready(function(){
 				draw();
 			}
 		});
-		$( "#amount" ).html( convertUnix(unixMin)+" - "+convertUnix(unixMax));
+		$( "#startRange" ).html( convertUnix(unixMin));
+		$( "#endRange" ).html( convertUnix(unixMax));
 		pushInfo();
    });
 
