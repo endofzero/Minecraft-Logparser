@@ -55,7 +55,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP;
+	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -346,34 +346,64 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 
 //Build Text
 
-$i=0;
-foreach (array_reverse($masterOutput) as $value)
-{if ($i<=$maxLines){$masterText.=$value;}$i++;}
+if ($logDirection=="forward"){
+	$i=0;
+	foreach ($masterOutput as $value)
+	{if ($i<=$maxLines){$masterText.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($heyOutput) as $value)
-{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
+	$i=0;
+	foreach ($heyOutput as $value)
+	{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($runecraftOutput) as $value)
-{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
+	$i=0;
+	foreach ($runecraftOutput as $value)
+	{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($chatOutput) as $value)
-{if ($i<=$maxLines){$chatText.=$value;}$i++;}
+	$i=0;
+	foreach ($chatOutput as $value)
+	{if ($i<=$maxLines){$chatText.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($consoleOutput) as $value)
-{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
+	$i=0;
+	foreach ($consoleOutput as $value)
+	{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($errorOutput) as $value)
-{if ($i<=$maxLines){$errorText.=$value;}$i++;}
+	$i=0;
+	foreach ($errorOutput as $value)
+	{if ($i<=$maxLines){$errorText.=$value;}$i++;}
 
-$i=0;
-foreach (array_reverse($serverOutput) as $value)
-{if ($i<=$maxLines){$serverText.=$value;}$i++;}
+	$i=0;
+	foreach ($serverOutput as $value)
+	{if ($i<=$maxLines){$serverText.=$value;}$i++;}
 
+}else{
+	$i=0;
+	foreach (array_reverse($masterOutput) as $value)
+	{if ($i<=$maxLines){$masterText.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($heyOutput) as $value)
+	{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($runecraftOutput) as $value)
+	{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($chatOutput) as $value)
+	{if ($i<=$maxLines){$chatText.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($consoleOutput) as $value)
+	{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($errorOutput) as $value)
+	{if ($i<=$maxLines){$errorText.=$value;}$i++;}
+
+	$i=0;
+	foreach (array_reverse($serverOutput) as $value)
+	{if ($i<=$maxLines){$serverText.=$value;}$i++;}
+}
 
 
 $secDiff = $lastDate - $firstDate;
