@@ -327,15 +327,15 @@ $(document).ready(function(){
 		$( "#slider-range" ).slider({
 			range: true,
 			min: 0,
-			max: 1000,
-			values: [ 0, 1000 ],
+			max: 10000,
+			values: [ 0, 10000 ],
 			slide: function( event, ui ) {
-				$( "#startRange" ).html(convertPercent((ui.values[ 0 ]/10)));
-				$( "#endRange" ).html(convertPercent((ui.values[ 1 ]/10)));
+				$( "#startRange" ).html(convertPercent((ui.values[ 0 ]/100)));
+				$( "#endRange" ).html(convertPercent((ui.values[ 1 ]/100)));
 				
 			},
 			change: function( event, ui ) {
-				setScale((ui.values[ 0 ]/10), (ui.values[ 1 ]/10));
+				setScale((ui.values[ 0 ]/100), (ui.values[ 1 ]/100));
 				draw();
 			}
 		});
