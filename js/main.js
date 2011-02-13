@@ -342,6 +342,7 @@ $(document).ready(function(){
 		$( "#startRange" ).html( convertUnix(unixMin));
 		$( "#endRange" ).html( convertUnix(unixMax));
 		pushInfo();
+		draw();
    });
 
 function pushInfo(){
@@ -445,6 +446,24 @@ function createArray()
 
 }
 
+function drawLabel(pos,textLabel){
+
+//ctx.shadowOffsetX = 1;
+//ctx.shadowOffsetY = 1;
+//ctx.shadowBlur = 1;
+//ctx.fillstyle ="rgba("+red+","+green+","+blue+",.5)";
+//ctx.fillstyle ="rgba(255,0,0,.5)";
+//ctx.shadowColor = "rgba(255, 255, 255, .75)";
+ctx.font = "12px Times New Roman";
+//nameArray[0] = '1:Player 1';
+//nameArray[1] = '1:Player 2';
+ctx.globalCompositeOperation ="destination-over";
+ctx.fillText(textLabel, 3, pos+12);
+ctx.globalCompositeOperation ="source-over";
+return;
+}
+
+
 function draw() {
 
 var x;
@@ -454,7 +473,9 @@ var hei;
 var pos;
 var userChatColor ="rgba(48, 209, 209, 1)";
 var startColor ="rgba(255,255,255,1)";
+
 var severeColor ="rgba(255,0,0,1)";
+
 var warningColor ="rgba(255,128,0,1)";
 
 var hey0Color ="rgba(255,255,0,1)";
@@ -509,6 +530,8 @@ ctx.fillStyle = severeColor;
 hei=15;
 pos=31;
 
+drawLabel(pos,"Severe");
+
 for (x in severeArray)
 {
 	mark=calcPixel(severeArray[x]);
@@ -517,6 +540,8 @@ for (x in severeArray)
 
     ctx.fillStyle = warningColor;
 pos= pos + (hei+1);
+
+drawLabel(pos,"Warning");
 
 for (x in warningArray)
 {
@@ -527,6 +552,8 @@ for (x in warningArray)
 ctx.fillStyle = hey0Color;
 pos= pos + (hei+1);
 
+drawLabel(pos,"Command");
+
 for (x in hey0Array)
 {
 	mark=calcPixel(hey0Array[x]);
@@ -535,6 +562,7 @@ for (x in hey0Array)
 
 ctx.fillStyle = runecraftColor;
 pos= pos + (hei+1);
+drawLabel(pos,"WorldEdit");
 
 for (x in runecraftArray)
 {
@@ -544,6 +572,7 @@ for (x in runecraftArray)
 
 ctx.fillStyle = userChatColor;
 pos= pos + (hei+1);
+drawLabel(pos,"Chat");
 
 for (x in userChatArray)
 {
@@ -553,6 +582,7 @@ for (x in userChatArray)
 
 ctx.fillStyle = consoleChatColor;
 pos= pos + (hei+1);
+drawLabel(pos,"Console Chat");
 
 for (x in consoleChatArray)
 {
@@ -562,6 +592,7 @@ for (x in consoleChatArray)
 
 ctx.fillStyle = consoleMsgColor;
 pos= pos + (hei+1);
+drawLabel(pos,"Console");
 
 for (x in consoleMsgArray)
 {
@@ -588,9 +619,9 @@ ctx.shadowBlur = 1;
 ctx.font = "15px Times New Roman";
 //nameArray[0] = '1:Player 1';
 //nameArray[1] = '1:Player 2';
-ctx.globalCompositeOperation ="source-over"
-ctx.fillText(nameArray[i].substring(2), 3, pos+12);
 ctx.globalCompositeOperation ="destination-over"
+ctx.fillText(nameArray[i].substring(2), 3, pos+12);
+ctx.globalCompositeOperation ="source-over"
 
 ctx.shadowOffsetX = 0;
 ctx.shadowOffsetY = 0;
