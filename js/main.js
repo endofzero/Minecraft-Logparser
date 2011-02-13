@@ -448,15 +448,7 @@ function createArray()
 
 function drawLabel(pos,textLabel){
 
-//ctx.shadowOffsetX = 1;
-//ctx.shadowOffsetY = 1;
-//ctx.shadowBlur = 1;
-//ctx.fillstyle ="rgba("+red+","+green+","+blue+",.5)";
-//ctx.fillstyle ="rgba(255,0,0,.5)";
-//ctx.shadowColor = "rgba(255, 255, 255, .75)";
 ctx.font = "12px Times New Roman";
-//nameArray[0] = '1:Player 1';
-//nameArray[1] = '1:Player 2';
 ctx.globalCompositeOperation ="destination-over";
 ctx.fillText(textLabel, 3, pos+12);
 ctx.globalCompositeOperation ="source-over";
@@ -612,21 +604,13 @@ for (i=0;i<=(userCount-1);i++)
 
 pos= pos + (hei+3);
 ctx.fillStyle = "rgba("+r+","+g+","+b+",1)";
-ctx.shadowOffsetX = 1;
-ctx.shadowOffsetY = 1;
-ctx.shadowBlur = 1;
-//ctx.shadowColor = "rgba(255, 255, 255, .75)";
-ctx.font = "15px Times New Roman";
-//nameArray[0] = '1:Player 1';
-//nameArray[1] = '1:Player 2';
-ctx.globalCompositeOperation ="destination-over"
-ctx.fillText(nameArray[i].substring(2), 3, pos+12);
-ctx.globalCompositeOperation ="source-over"
+
+drawLabel(pos,nameArray[i].substring(2));
 
 ctx.shadowOffsetX = 0;
 ctx.shadowOffsetY = 0;
 ctx.shadowBlur = 0;
-ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
 g= g-80
 b= b+30
 
