@@ -79,10 +79,19 @@ function displayStats()
 	$users = array();
 
 	$fluffArray = array();
+	$worldStartArray = array();
+
 	// Load fluff file into array
-	$fluffArray=file("fluff.txt");
+	$fluffArray=file("fluff.type");
 	//Trim Array and quote for preg
 	array_walk($fluffArray,"trimArray");
+	$pattern = "/".implode("|", $fluffArray)."/is";
+
+	// Load fluff file into array
+	$worldStartArray=file("worldStart.type");
+	//Trim Array and quote for preg
+	array_walk($worldStartArray,"trimArray");
+	$worldStartPattern = "/".implode("|", $worldStartArray)."/is";
 
 	mysql_select_db($logDatabase) or die("Unable to select Database: $logDatabase");
 
@@ -148,10 +157,8 @@ while($row = mysql_fetch_array($result))
 //		echo date("U",strtotime($prevDate))." 0</br>";
 		array_push($serverStats, "0:".date("U",strtotime($prevDate)));
 	}
-	$serverLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-	$fullLog.= "<div class='serverStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	$startDate=$row["Date"];
 //	echo date("U",strtotime($row["Date"]))." 1</br>";
 	array_push($serverStats, "1:".date("U",strtotime($row["Date"])));
@@ -161,14 +168,10 @@ while($row = mysql_fetch_array($result))
 	{
 		$endDate=$row["Date"];
 		$diff=get_time_difference($startDate,$endDate);
-		$serverLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
 	array_push($masterOutput, "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>");
 	array_push($serverOutput, "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>");
-		$fullLog.= "<div class='serverUptime'> Server uptime:". $diff['days'] . ":" . $diff['hours'] . ":" . $diff['minutes'].":".$diff['seconds']."</div>";
-		$serverLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 	array_push($masterOutput, "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$fullLog.= "<div class='serverStop'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>";
 		$uptimeSeconds = $uptimeSeconds + (($diff['seconds']) + ($diff['minutes']*60) + (($diff['hours']*60)*60));
 //		echo date("U",strtotime($row["Date"]))." 0</br>";
 		array_push($serverStats, "0:".date("U",strtotime($row["Date"])));
@@ -278,7 +281,9 @@ while($row = mysql_fetch_array($result))
 	array_push($masterOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='userLogout'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 // World Start
-	}elseif (preg_match("/Loading properties|Preparing level|Preparing start region|Done! For help|Saving chunks|Starting Minecraft server on|your current classpath is/",trim($row["Text"]))>0)
+
+	}elseif (preg_match($worldStartPattern,trim($row["Text"]))>0)
+
 	{
 	array_push($masterOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
@@ -290,22 +295,20 @@ while($row = mysql_fetch_array($result))
 		array_push($runecraft, date("U",strtotime($row["Date"])));
 	//Default Print
 	}else{
-		array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		$pattern = "/".implode("|", $fluffArray)."/is";
+//		array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 //		echo $pattern;
-			if (preg_match($pattern,trim($row["Text"]))>0)
+		if (preg_match($pattern,trim($row["Text"]))>0)
 			{
+//			echo $pattern." ::: ". trim($row["Text"])." === $tester:$displayFluff</br>";
 			$fluffMatch=1;
 				if ($displayFluff==1)
 				{
 					array_push($masterOutput, "<div class='fluff'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 				}
+			$fluffCount++;
+			}else{
+			array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
 			}
-		$fluffCount++;
-		if ($fluffMatch==0)
-		{
-			//array_push($masterOutput, $row["Date"]." ". $row["Class"]." ".htmlspecialchars(trim($row["Text"]))."</br>");
-		}
 	}
 $logCount++;
 $prevDate = $row["Date"];
@@ -347,62 +350,21 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //Build Text
 
 if ($logDirection=="forward"){
-	$i=0;
-	foreach ($masterOutput as $value)
-	{if ($i<=$maxLines){$masterText.=$value;}$i++;}
-
-	$i=0;
-	foreach ($heyOutput as $value)
-	{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
-
-	$i=0;
-	foreach ($runecraftOutput as $value)
-	{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
-
-	$i=0;
-	foreach ($chatOutput as $value)
-	{if ($i<=$maxLines){$chatText.=$value;}$i++;}
-
-	$i=0;
-	foreach ($consoleOutput as $value)
-	{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
-
-	$i=0;
-	foreach ($errorOutput as $value)
-	{if ($i<=$maxLines){$errorText.=$value;}$i++;}
-
-	$i=0;
-	foreach ($serverOutput as $value)
-	{if ($i<=$maxLines){$serverText.=$value;}$i++;}
-
+	$i=0;foreach ($masterOutput as $value){if ($i<=$maxLines){$masterText.=$value;}$i++;}
+	$i=0;foreach ($heyOutput as $value){if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
+	$i=0;foreach ($runecraftOutput as $value){if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
+	$i=0;foreach ($chatOutput as $value){if ($i<=$maxLines){$chatText.=$value;}$i++;}
+	$i=0;foreach ($consoleOutput as $value){if ($i<=$maxLines){$consoleText.=$value;}$i++;}
+	$i=0;foreach ($errorOutput as $value){if ($i<=$maxLines){$errorText.=$value;}$i++;}
+	$i=0;foreach ($serverOutput as $value){if ($i<=$maxLines){$serverText.=$value;}$i++;}
 }else{
-	$i=0;
-	foreach (array_reverse($masterOutput) as $value)
-	{if ($i<=$maxLines){$masterText.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($heyOutput) as $value)
-	{if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($runecraftOutput) as $value)
-	{if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($chatOutput) as $value)
-	{if ($i<=$maxLines){$chatText.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($consoleOutput) as $value)
-	{if ($i<=$maxLines){$consoleText.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($errorOutput) as $value)
-	{if ($i<=$maxLines){$errorText.=$value;}$i++;}
-
-	$i=0;
-	foreach (array_reverse($serverOutput) as $value)
-	{if ($i<=$maxLines){$serverText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($masterOutput) as $value){if ($i<=$maxLines){$masterText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($heyOutput) as $value){if ($i<=$maxLines){$hey0Text.=$value;}$i++;}
+	$i=0;foreach (array_reverse($runecraftOutput) as $value){if ($i<=$maxLines){$runecraftText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($chatOutput) as $value){if ($i<=$maxLines){$chatText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($consoleOutput) as $value){if ($i<=$maxLines){$consoleText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($errorOutput) as $value){if ($i<=$maxLines){$errorText.=$value;}$i++;}
+	$i=0;foreach (array_reverse($serverOutput) as $value){if ($i<=$maxLines){$serverText.=$value;}$i++;}
 }
 
 
@@ -557,21 +519,20 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 
 <div style='display:none' id="graphDialog" title="Graph Options">
 <table>
-<tr><td><span class="serverStart2">Server Start/Stop</span></td><td><span id="serverStartGraph"></span></td><td><span id="serverStartLog"></span></td></tr>
-<tr><td><span class="severeError">Severe Error</span></td><td><span id="severeErrorGraph"></span></td><td><span id="severeErrorLog"></span></td></tr>
-<tr><td><span class="WarningError">Warning Error</span></td><td><span id="warningErrorGraph"></span></td><td><span id="warningErrorLog"></span></td></tr>
-<tr><td><span class="heyLogging">Bukkit Logging</span></td><td><span id="heyLoggingGraph"></span></td><td><span id="heyLoggingLog"></span></td></tr>
-<tr><td><span class="runecraft">WorldEdit</span></td><td><span id="runecraftGraph"></span></td><td><span id="runecraftLog"></span></td></tr>
-<tr><td><span class="userLogin">User Login</span></td><td><span id="userLoginGraph"></span></td><td><span id="userLoginLog"></span></td></tr>
-<tr><td><span class="userLogout">User Logout</span></td><td><span id="userLogoutGraph"></span></td><td><span id="userLogoutLog"></span></td></tr>
-<tr><td><span class="userChat">User Chat</span></td><td><span id="userChatGraph"></span></td><td><span id="userChatLog"></span></td></tr>
-<tr><td><span class="consoleChat">Console Chat</span></td><td><span id="consoleChatGraph"></span></td><td><span id="consoleChatLog"></span></td></tr>
-<tr><td><span class="consoleMsg">Console Message</span></td><td><span id="consoleMsgGraph"></span></td><td><span id="consoleMsgLog"></span></td></tr>
+<tr><td><span class="serverStart2">Server Start/Stop</span></td></tr>
+<tr><td><span class="severeError">Severe Error</span></td></tr>
+<tr><td><span class="WarningError">Warning Error</span></td></tr>
+<tr><td><span class="heyLogging">Bukkit Logging</span></td></tr>
+<tr><td><span class="runecraft">WorldEdit</span></td></tr>
+<tr><td><span class="userChat">User Chat</span></td></tr>
+<tr><td><span class="consoleChat">Console Chat</span></td></tr>
+<tr><td><span class="consoleMsg">Console Message</span></td></tr>
 </table>
 </div>
 
 <div id="statsDialog" title="Stats">
 <div><span class="severeError">Uptime:</span><div id="uptimeOutput"></div></div>
+<div id="userUptimeOutput"></div>
 </div>
 
 <?php

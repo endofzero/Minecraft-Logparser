@@ -477,12 +477,17 @@ var consoleChatColor ="rgba(40,173,173,1)";
 var uptimeColor ="rgba(100,100,100,1)";
 var activeUptimeColor ="rgba(38,41,79,1)";
 
+//ctx.shadowOffsetX = 0;
+//ctx.shadowOffsetY = 0;
+//ctx.shadowBlur = 0;
+ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+
 ctx.fillStyle = uptimeColor;
 hei=30;
 pos=0;
 var lastUptime=0;
 
-ctx.globalCompositeOperation ="source-over"
+//ctx.globalCompositeOperation ="source-over"
 ctx.clearRect(0,0,2000,2000);
 
 for (x in startArray)
@@ -606,11 +611,6 @@ pos= pos + (hei+3);
 ctx.fillStyle = "rgba("+r+","+g+","+b+",1)";
 
 drawLabel(pos,nameArray[i].substring(2));
-
-ctx.shadowOffsetX = 0;
-ctx.shadowOffsetY = 0;
-ctx.shadowBlur = 0;
-ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
 g= g-80
 b= b+30
 
