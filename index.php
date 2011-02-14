@@ -82,13 +82,13 @@ function displayStats()
 	$worldStartArray = array();
 
 	// Load fluff file into array
-	$fluffArray=file("fluff.type");
+	$fluffArray=file("parser/fluff.type");
 	//Trim Array and quote for preg
 	array_walk($fluffArray,"trimArray");
 	$pattern = "/".implode("|", $fluffArray)."/is";
 
 	// Load fluff file into array
-	$worldStartArray=file("worldStart.type");
+	$worldStartArray=file("parser/worldStart.type");
 	//Trim Array and quote for preg
 	array_walk($worldStartArray,"trimArray");
 	$worldStartPattern = "/".implode("|", $worldStartArray)."/is";
