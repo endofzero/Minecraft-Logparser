@@ -186,8 +186,22 @@ while($row = mysql_fetch_array($result))
 
 //Chat
 	}elseif (strcspn($row["Text"],"<")=="0"){
-		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
-		array_push($chatOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+
+// Strip out any color values
+		if (preg_match("/<§[0-f](.*)§[0-f]>(.*)/",trim($row["Text"]),$matches)>0)
+		{
+		$matches[0]= preg_replace ( "/<§[0-f](.*)§[0-f]>/e" , "$2" , $matches[0]);
+		$chatUser= preg_replace ( "/<§[0-f](.*)§[0-f]>/e" , "$2" , $matches[1]);
+
+		}elseif (preg_match("/<(.*)>(.*)/",trim($row["Text"]),$matches)>0){
+		$matches[0]= preg_replace ( "/<(.*)>/e" , "$2" , $matches[0]);
+		$chatUser= preg_replace ( "/<(.*)>/e" , "$1" , $matches[1]);
+		}
+
+//		echo $tester ." -> ". $matches[0] ."</br>";
+
+		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ".$chatUser." -> ". htmlspecialchars(trim($matches[0]))."</div>");
+		array_push($chatOutput, "<div class='userChat'>".$row["Date"]." ".$chatUser." -> ". htmlspecialchars(trim($matches[0]))."</div>");
 		array_push($userChat, date("U",strtotime($row["Date"])));
 
 //Console command
