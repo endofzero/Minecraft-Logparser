@@ -7,3 +7,4 @@ logDatabase="minecraft"
 maxLines=1000
 hideIP=1
 logDirection="reverse"
+consoleChat="console"

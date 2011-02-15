@@ -12,6 +12,7 @@ $displayFluff=$parserSettings["displayFluff"];
 $maxLines=$parserSettings["maxLines"];
 $hideIP=$parserSettings["hideIP"];
 $logDirection=$parserSettings["logDirection"];
+$consoleChat=$parserSettings["consoleChat"];
 
 $logTableName=$parserSettings["logTableName"];
 $logDatabase=$parserSettings["logDatabase"];
@@ -55,7 +56,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection;
+	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection, $consoleChat;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -80,18 +81,28 @@ function displayStats()
 
 	$fluffArray = array();
 	$worldStartArray = array();
+	$commandArray = array();
 
-	// Load fluff file into array
-	$fluffArray=file("parser/fluff.type");
+	// Load .type files into arrays
+	$fluffArray=file("types/fluff.type");
 	//Trim Array and quote for preg
 	array_walk($fluffArray,"trimArray");
 	$pattern = "/".implode("|", $fluffArray)."/is";
 
-	// Load fluff file into array
-	$worldStartArray=file("parser/worldStart.type");
+	$worldStartArray=file("types/worldStart.type");
 	//Trim Array and quote for preg
 	array_walk($worldStartArray,"trimArray");
 	$worldStartPattern = "/".implode("|", $worldStartArray)."/is";
+
+	$commandArray=file("types/command.type");
+	//Trim Array and quote for preg
+	array_walk($commandArray,"trimArray");
+	$commandPattern = "/".implode("|", $commandArray)."/is";
+
+	$primaryArray=file("types/primary.type");
+	//Trim Array and quote for preg
+	array_walk($primaryArray,"trimArray");
+	$primaryPattern = "/".implode("|", $primaryArray)."/is";
 
 	mysql_select_db($logDatabase) or die("Unable to select Database: $logDatabase");
 
@@ -241,7 +252,7 @@ while($row = mysql_fetch_array($result))
 		array_push($warningErrors, date("U",strtotime($row["Date"])));
 
 //Bukkit Command logging
-	}elseif (preg_match("/issued server command/",trim($row["Text"]))>0)
+	}elseif (preg_match($commandPattern,trim($row["Text"]))>0)
 	{
 		array_push($heyLogging, date("U",strtotime($row["Date"])));
 		if (preg_match("/Giving(.*)some (.*)/",trim($row["Text"]),$matches)>0)
@@ -302,7 +313,7 @@ while($row = mysql_fetch_array($result))
 	array_push($masterOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($serverOutput, "<div class='worldStart'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 // Worldedit
-	}elseif (preg_match("/WorldEdit/",trim($row["Text"]))>0)
+	}elseif (preg_match($primaryPattern,trim($row["Text"]))>0)
 	{
 	array_push($masterOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 	array_push($runecraftOutput, "<div class='runecraft'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
