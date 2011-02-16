@@ -16,7 +16,7 @@ $consoleChat=$parserSettings["consoleChat"];
 
 $logTableName=$parserSettings["logTableName"];
 $logDatabase=$parserSettings["logDatabase"];
-
+$sectionList=$parserSettings["sectionLabels"];
 
 function get_time_difference( $start, $end )
 {
@@ -56,7 +56,7 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection, $consoleChat;
+	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection, $consoleChat, $sectionList;
 	$serverStats = array();
 	$severeErrors = array();
 	$warningErrors = array();
@@ -82,6 +82,9 @@ function displayStats()
 	$fluffArray = array();
 	$worldStartArray = array();
 	$commandArray = array();
+
+	$sectionLabel = explode(";", $sectionList);
+//	print_r($sectionLabel);
 
 	// Load .type files into arrays
 	$fluffArray=file("types/fluff.type");
@@ -495,31 +498,31 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 	</canvas></div>
 
 <div id="accordion">
-	<h3><a href="#">Server</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[0]; ?></a></h3>
 	<div>
 			<?php echo $serverText; ?>
 	</div>
-	<h3><a href="#">Error</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[1]; ?></a></h3>
 	<div>
 			<?php echo $errorText; ?>
 	</div>
-	<h3><a href="#">Chat</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[2]; ?></a></h3>
 	<div>
 			<?php echo $chatText; ?>
 	</div>
-	<h3><a href="#">Console</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[3]; ?></a></h3>
 	<div>
 			<?php echo $consoleText; ?>
 	</div>
-	<h3><a href="#">WorldEdit</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[4]; ?></a></h3>
 	<div>
 			<?php echo $runecraftText; ?>
 	</div>
-	<h3><a href="#">Bukkit</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[5]; ?></a></h3>
 	<div>
 			<?php echo $hey0Text; ?>
 	</div>
-	<h3><a href="#">Full Logs</a></h3>
+	<h3><a href="#"><?php echo $sectionLabel[6]; ?></a></h3>
 	<div>
 			<?php echo $masterText; ?>
 	</div>

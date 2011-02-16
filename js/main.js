@@ -579,7 +579,7 @@ for (x in userChatArray)
 
 ctx.fillStyle = consoleChatColor;
 pos= pos + (hei+1);
-drawLabel(pos,"Console Chat");
+//drawLabel(pos,"Console Chat");
 
 for (x in consoleChatArray)
 {
@@ -588,7 +588,7 @@ for (x in consoleChatArray)
 }
 
 ctx.fillStyle = consoleMsgColor;
-pos= pos + (hei+1);
+//pos= pos + (hei+1);
 drawLabel(pos,"Console");
 
 for (x in consoleMsgArray)

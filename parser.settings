@@ -8,3 +8,5 @@ maxLines=1000
 hideIP=1
 logDirection="reverse"
 consoleChat="console"
+
+sectionLabels="Server;Error;Chat;Console;Primary;Command;Full Logs"
