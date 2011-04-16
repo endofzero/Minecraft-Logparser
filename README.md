@@ -3,7 +3,12 @@ Just a quick mashup as it is right now to provide basic functionallty.
 The main reason this arose was to allow for me to enter the logs into SQL so 
 I can better run queries against that data.
 
-Connects to the same database as hey0's mod, 'minecraft' by default.
+Connects to the database 'minecraft' by default.
+
+Your cronjob need only copy data from server.log into the master log file.
+Example:
+     cat server.log >> path/to/master.log
+
 
 Configuration
 =============
@@ -91,6 +96,6 @@ Example Cron Job
 ================
 This is my actual cron job for logging capture.
 
-     # Update SQL logs every 15 minutes
-     */15 * * * * nice -n 20 ~/minecraft.sh logs >/dev/null 2>&1;sleep 2;~/Minecraft-Logparser/commands.php inject >/dev/null 2>&1
+     # Update SQL logs every 10 minutes
+     */10 * * * * cat ~/server.log >> /var/www/minecraft/logs/master-log.log;sleep 2;~/Minecraft-Logparser/commands.php inject >/dev/null 2>&1
 

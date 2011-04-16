@@ -1,5 +1,5 @@
 var ctx;
-var unixMin;
+var unixMin; // Minimum Unix Time in Logs
 var unixMax;
 var drawMin;
 var drawMax;
@@ -13,8 +13,11 @@ var severeArray = new Array();
 var warningArray = new Array();
 var consoleMsgArray = new Array();
 var consoleChatArray = new Array();
-var hey0Array = new Array();
+var commandArray = new Array();
 var runecraftArray = new Array();
+
+var mcVersionArray = new Array();
+var cbVersionArray = new Array();
 
 $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
@@ -322,7 +325,7 @@ $(document).ready(function(){
                         .accordion({
                         collapsible: true,
                         autoHeight: false,
-                        active: false,
+                        active: false
                         });
 		$( "#slider-range" ).slider({
 			range: true,
@@ -391,7 +394,7 @@ function extractUptime(){
 	
 }
 
-function calcPixel(unixTime)
+function calcPixel(unixTime) //Takes unixTime and converts it into a pixel value
 {
 var base = drawMax - drawMin;
 var offset = unixTime - drawMin;
@@ -406,6 +409,12 @@ function createArray()
 {
 	$('.userChatItem').each(function(index) {
 		userChatArray.push($(this).text());
+	});
+	$('.mcVersionList').each(function(index) {
+		mcVersionArray.push($(this).text());
+	});
+	$('.cbVersionList').each(function(index) {
+		cbVersionArray.push($(this).text());
 	});
 	$('.severeErrorItem').each(function(index) {
 		severeArray.push($(this).text());
@@ -423,7 +432,7 @@ function createArray()
 		consoleMsgArray.push($(this).text());
 	});
 	$('.hey0Item').each(function(index) {
-		hey0Array.push($(this).text());
+		commandArray.push($(this).text());
 	});
 	$('.runecraftItem').each(function(index) {
 		runecraftArray.push($(this).text());
@@ -441,7 +450,7 @@ function createArray()
 //	$('#serverStatsArray').remove();
 //	$('#consoleChatArray').remove();
 //	$('#consoleMsgArray').remove();
-//	$('#hey0Array').remove();
+//	$('#commandArray').remove();
 //	$('#runecraftArray').remove();
 
 }
@@ -451,6 +460,16 @@ function drawLabel(pos,textLabel){
 ctx.font = "12px Times New Roman";
 ctx.globalCompositeOperation ="destination-over";
 ctx.fillText(textLabel, 3, pos+12);
+ctx.globalCompositeOperation ="source-over";
+return;
+}
+
+function drawVersion(pos,pixel,textLabel){
+ctx.font = "10px Times New Roman";
+ctx.globalCompositeOperation ="destination-over";
+ctx.fillRect(pixel,pos+5,1,15);
+//ctx.globalCompositeOperation ="source-over";
+ctx.fillText(textLabel, pixel+2, pos+10);
 ctx.globalCompositeOperation ="source-over";
 return;
 }
@@ -482,14 +501,39 @@ var activeUptimeColor ="rgba(38,41,79,1)";
 //ctx.shadowBlur = 0;
 ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
 
-ctx.fillStyle = uptimeColor;
-hei=30;
-pos=0;
 var lastUptime=0;
-
 //ctx.globalCompositeOperation ="source-over"
 ctx.clearRect(0,0,2000,2000);
 
+pos=0;
+
+ctx.fillStyle = severeColor;
+for (x in mcVersionArray){
+//alert(mcVersionArray[x]);
+var test;
+test = mcVersionArray[x].split("|");
+mark = calcPixel(test[1]);
+//ctx.fillRect(mark,pos,1,8);
+//alert(test[1])
+drawVersion(pos,mark,test[0]);
+}
+
+pos=7;
+
+ctx.fillStyle = consoleChatColor;
+for (x in cbVersionArray){
+//alert(mcVersionArray[x]);
+var test;
+test = cbVersionArray[x].split("|");
+mark = calcPixel(test[1]);
+//ctx.fillRect(mark,pos,1,8);
+//alert(test[1])
+drawVersion(pos,mark,test[0]);
+}
+
+hei=30;
+pos=20;
+ctx.fillStyle = uptimeColor;
 for (x in startArray)
 {
 	if (startArray[x].substring(0,1)==1){
@@ -513,7 +557,7 @@ ctx.fillRect(lastUptime,pos,canvasWidth,hei);
 
 ctx.fillStyle = startColor;
 hei=14;
-pos=8
+pos=pos+8;
 
 for (x in startArray)
 {
@@ -523,10 +567,10 @@ for (x in startArray)
 	}
 }
 
-ctx.fillStyle = severeColor;
 hei=15;
-pos=31;
-
+//pos=31;
+pos=51;
+ctx.fillStyle = severeColor;
 drawLabel(pos,"Severe");
 
 for (x in severeArray)
@@ -535,9 +579,10 @@ for (x in severeArray)
 	ctx.fillRect(mark,pos,1,hei);
 }
 
-    ctx.fillStyle = warningColor;
 pos= pos + (hei+1);
 
+
+ctx.fillStyle = warningColor;
 drawLabel(pos,"Warning");
 
 for (x in warningArray)
@@ -546,14 +591,16 @@ for (x in warningArray)
 	ctx.fillRect(mark,pos,1,hei);
 }
 
+
+
 ctx.fillStyle = hey0Color;
 pos= pos + (hei+1);
 
 drawLabel(pos,"Command");
 
-for (x in hey0Array)
+for (x in commandArray)
 {
-	mark=calcPixel(hey0Array[x]);
+	mark=calcPixel(commandArray[x]);
 	ctx.fillRect(mark,pos,1,hei);
 }
 

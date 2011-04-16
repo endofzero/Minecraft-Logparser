@@ -8,5 +8,6 @@ maxLines=1000
 hideIP=1
 logDirection="reverse"
 consoleChat="console"
+hideColor=1
 
-sectionLabels="Server;Error;Chat;Console;Primary;Command;Full Logs"
+sectionLabels="Server;Error;Chat;Console;WorldEdit;Commands;Full Logs"

@@ -17,6 +17,7 @@ $consoleChat=$parserSettings["consoleChat"];
 $logTableName=$parserSettings["logTableName"];
 $logDatabase=$parserSettings["logDatabase"];
 $sectionList=$parserSettings["sectionLabels"];
+$hideColor=$parserSettings["hideColor"];
 
 function get_time_difference( $start, $end )
 {
@@ -56,35 +57,17 @@ $value=preg_quote($value,'/');
 
 function displayStats()
 {
-	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection, $consoleChat, $sectionList;
-	$serverStats = array();
-	$severeErrors = array();
-	$warningErrors = array();
-	$consoleMsg = array();
-	$consoleChat = array();
-	$heyLogging = array();
-	$runecraft = array();
-	$userChat = array();
-	$connects = array();
+	global $displayFluff, $maxLines, $logTableName, $logDatabase, $hideIP, $logDirection, $consoleChat, $sectionList, $hideColor;
+	$serverStats = array();$severeErrors = array();$warningErrors = array();$consoleMsg = array();
+	$consoleChat = array();$heyLogging = array();$runecraft = array();$userChat = array();$connects = array();
 
-	$masterOutput = array();
-	$heyOutput = array();
-	$runecraftOutput = array();
-	$chatOutput = array();
-	$consoleOutput = array();
-	$errorOutput = array();
-	$serverOutput = array();
+	$masterOutput = array();$heyOutput = array();$runecraftOutput = array();$chatOutput = array();
+	$consoleOutput = array();$errorOutput = array();$serverOutput = array();
 
 	$userStats = array ();
-
-	$users = array();
-
-	$fluffArray = array();
-	$worldStartArray = array();
-	$commandArray = array();
+	$userStats = array ();
 
 	$sectionLabel = explode(";", $sectionList);
-//	print_r($sectionLabel);
 
 	// Load .type files into arrays
 	$fluffArray=file("types/fluff.type");
@@ -108,6 +91,69 @@ function displayStats()
 	$primaryPattern = "/".implode("|", $primaryArray)."/is";
 
 	mysql_select_db($logDatabase) or die("Unable to select Database: $logDatabase");
+
+	//Get Minecraft Version into Array
+	$queryUsers = "SELECT * FROM `logs` WHERE Text like 'Starting minecraft server version%'";
+	$result = mysql_query($queryUsers);
+	$mcVersionList= array();
+	$idCnt = 0;
+        $currentVersion = "";
+	if (mysql_num_rows($result) != 0)
+ 	{
+		while($row = mysql_fetch_array($result))
+		{
+		$date = date("U",strtotime($row["Date"]));
+		if ($idCnt==0){
+                    if (preg_match("/Starting minecraft server version Beta (.*)/",trim($row["Text"]),$matches)>0)
+			{
+                        $currentVersion = $matches[1];
+//                        echo $matches[1]." $date</br>";
+   		array_push($mcVersionList, trim($matches[1])."|$date");
+                        }
+}
+                    if (preg_match("/Starting minecraft server version Beta (.*)/",trim($row["Text"]),$matches)>0)
+			{
+                        if($currentVersion != $matches[1]){
+                        $currentVersion = $matches[1];
+//                        echo $matches[1]." $date</br>";
+   		array_push($mcVersionList, trim($matches[1])."|$date");
+                        }}
+
+        $idCnt++;
+		}
+	}
+
+//	print_r($mcVersionList);
+
+	//Get CraftBukkit Version into Array
+	$queryUsers = "SELECT * FROM `logs` WHERE Text like 'This server is running Craftbukkit version%'";
+	$result = mysql_query($queryUsers);
+	$cbVersionList= array();
+	$idCnt = 0;
+	if (mysql_num_rows($result) != 0)
+ 	{
+		while($row = mysql_fetch_array($result))
+		{
+		$date = date("U",strtotime($row["Date"]));
+		if ($idCnt==0){
+		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+			{
+//                    echo $matches[1]." $date</br>";
+   		array_push($cbVersionList, trim($matches[1])."|$date");
+                
+                }
+		}
+       		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+			{
+                        if($currentVersion != $matches[1]){
+                        $currentVersion = $matches[1];
+  //                      echo $matches[1]." $date</br>";
+   		array_push($cbVersionList, trim($matches[1])."|$date");
+                        }}
+
+                $idCnt++;
+		}
+	}
 
 	//Get userlist into Array
 	$queryUsers = "SELECT * from users";
@@ -149,6 +195,7 @@ $uptimeSeconds = 0;
 
 $firstDate = 0;
 $lastDate = 0;
+$fluffCount=0;
 
 //$queryLogs = "SELECT * from logs where Date >= DATE_SUB(NOW(),INTERVAL 1 DAY) order by Date";
 $queryLogs = "SELECT * from $logTableName order by Date";
@@ -159,6 +206,10 @@ if (mysql_num_rows($result) != 0)
 while($row = mysql_fetch_array($result))
 {
 
+if ($hideColor!=0){
+// Strip out any color values
+$row["Text"]= preg_replace ( "/ï¿½[0-f]/e" , "" , trim($row["Text"]));
+}
 //Server start
 	if (preg_match("/Starting minecraft server version/",trim($row["Text"]))>0)
 	{
@@ -202,18 +253,27 @@ while($row = mysql_fetch_array($result))
 	}elseif (strcspn($row["Text"],"<")=="0"){
 
 // Strip out any color values
-		if (preg_match("/<§[0-f](.*)§[0-f]>(.*)/",trim($row["Text"]),$matches)>0)
-		{
-		$matches[0]= preg_replace ( "/<§[0-f](.*)§[0-f]>/e" , "$2" , $matches[0]);
-		$chatUser= preg_replace ( "/<§[0-f](.*)§[0-f]>/e" , "$2" , $matches[1]);
+//		$row["Text"]= preg_replace ( "/ï¿½[0-f]/e" , "" , trim($row["Text"]));
+//		$chatUser= preg_replace ( "/<ï¿½[0-f](.*)ï¿½[0-f]>/e" , "$2" , $matches[1]);
 
-		}elseif (preg_match("/<(.*)>(.*)/",trim($row["Text"]),$matches)>0){
+//		}elseif (preg_match("/<(.*)>(.*)/",trim($row["Text"]),$matches)>0){
+//		$matches[0]= preg_replace ( "/<(.*)>/e" , "$2" , $matches[0]);
+//		$chatUser= preg_replace ( "/<(.*)>/e" , "$1" , $matches[1]);
+//		}
+//		if (preg_match("/<ï¿½[0-f](.*)ï¿½[0-f]>(.*)|(.*)ï¿½[0-f]>(.*)/",trim($row["Text"]),$matches)>0)
+//		{
+//		$matches[0]= preg_replace ( "/<ï¿½[0-f](.*)ï¿½[0-f]>/e" , "$2" , $matches[0]);
+//		$chatUser= preg_replace ( "/<ï¿½[0-f](.*)ï¿½[0-f]>/e" , "$2" , $matches[1]);
+//
+		if (preg_match("/<(.*)>(.*)/",trim($row["Text"]),$matches)>0){
 		$matches[0]= preg_replace ( "/<(.*)>/e" , "$2" , $matches[0]);
 		$chatUser= preg_replace ( "/<(.*)>/e" , "$1" , $matches[1]);
 		}
 
-//		echo $tester ." -> ". $matches[0] ."</br>";
+//		echo $chatUser ." -> ". $matches[0] ."</br>";
 
+//		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
+//		array_push($chatOutput, "<div class='userChat'>".$row["Date"]." ". htmlspecialchars(trim($row["Text"]))."</div>");
 		array_push($masterOutput, "<div class='userChat'>".$row["Date"]." ".$chatUser." -> ". htmlspecialchars(trim($matches[0]))."</div>");
 		array_push($chatOutput, "<div class='userChat'>".$row["Date"]." ".$chatUser." -> ". htmlspecialchars(trim($matches[0]))."</div>");
 		array_push($userChat, date("U",strtotime($row["Date"])));
@@ -376,6 +436,7 @@ $uptimeWeek=str_pad($uptimeWeek,2,"0",STR_PAD_LEFT);
 //$uptimeHrs=floor(fmod($uptimeHrs,24));
 
 //Build Text
+$masterText="";$hey0Text="";$runecraftText="";$consoleText="";$errorText="";$serverText="";$chatText="";
 
 if ($logDirection=="forward"){
 	$i=0;foreach ($masterOutput as $value){if ($i<=$maxLines){$masterText.=$value;}$i++;}
@@ -398,8 +459,7 @@ if ($logDirection=="forward"){
 
 $secDiff = $lastDate - $firstDate;
 $userCount = count($userList);
-echo "<div style='display:none;' id='unixMin'>$firstDate</div>";
-echo "<div style='display:none;' id='unixMax'>$lastDate</div>";
+echo "<div style='display:none;' id='unixMin'>$firstDate</div><div style='display:none;' id='unixMax'>$lastDate</div>";
 echo "<div style='display:none;' id='userCount'>$userCount</div>";
 
 //echo $firstDate." - ".$lastDate." : ".$secDiff." ". (($serverStats[1] - $serverStats[0])/$secDiff)."</br>";
@@ -408,6 +468,20 @@ echo "<div style='display:none;' id='serverStatsArray'>";
 foreach ($serverStats as $value)
 {
 echo "<span class='serverStartItem'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='mcVersionArray'>";
+foreach ($mcVersionList as $value)
+{
+echo "<span class='mcVersionList'>$value</span>";
+}
+echo "</div>";
+
+echo "<div style='display:none;' id='cbVersionArray'>";
+foreach ($cbVersionList as $value)
+{
+echo "<span class='cbVersionList'>$value</span>";
 }
 echo "</div>";
 
@@ -547,7 +621,7 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 
 <div style='display:none' id="graphDialog" title="Graph Options">
 <table>
-<tr><td><span class="serverStart2">Server Start/Stop</span></td></tr>
+<tr><td><span class="serverStart2">Server Start</span></td></tr>
 <tr><td><span class="severeError">Severe Error</span></td></tr>
 <tr><td><span class="WarningError">Warning Error</span></td></tr>
 <tr><td><span class="heyLogging">Bukkit Logging</span></td></tr>
