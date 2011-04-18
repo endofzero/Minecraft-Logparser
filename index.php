@@ -1,4 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>MineCraft Logs</title>
+
+  <link type="text/css" href="css/dark-hive/jquery-ui-1.8.6.custom.css" rel="stylesheet" />	
+  <link rel="stylesheet" type="text/css" href="css/default.css" />
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</head><body>
 <?php
 /* Include Files *********************/
 require("/var/include/dbconnect.php");
@@ -103,11 +112,11 @@ function displayStats()
 		while($row = mysql_fetch_array($result))
 		{
 		$date = date("U",strtotime($row["Date"]));
+//                      echo $row["Text"]." $date</br>";
 		if ($idCnt==0){
                     if (preg_match("/Starting minecraft server version Beta (.*)/",trim($row["Text"]),$matches)>0)
 			{
                         $currentVersion = $matches[1];
-//                        echo $matches[1]." $date</br>";
    		array_push($mcVersionList, trim($matches[1])."|$date");
                         }
 }
@@ -115,7 +124,6 @@ function displayStats()
 			{
                         if($currentVersion != $matches[1]){
                         $currentVersion = $matches[1];
-//                        echo $matches[1]." $date</br>";
    		array_push($mcVersionList, trim($matches[1])."|$date");
                         }}
 
@@ -135,21 +143,58 @@ function displayStats()
 		while($row = mysql_fetch_array($result))
 		{
 		$date = date("U",strtotime($row["Date"]));
+//                          echo $row["Text"]." $date</br>";
 		if ($idCnt==0){
-		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+                    if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-b(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
 			{
-//                    echo $matches[1]." $date</br>";
-   		array_push($cbVersionList, trim($matches[1])."|$date");
-                
-                }
+                        $currentVersion = $matches[3];
+                        array_push($cbVersionList, trim($matches[3])."|$date");
+                        }
 		}
-       		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+       		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-b(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+		{
+                    if($currentVersion != $matches[3])
+                        {
+                        $currentVersion = $matches[3];
+			if (preg_match("/(.*)jnks/",$matches[3],$stripped)>0)
+                            {
+                            array_push($cbVersionList, trim($stripped[1])."|$date");
+                            }else{
+                            array_push($cbVersionList, trim($matches[3])."|$date");
+                            }
+                        }
+                }
+
+                $idCnt++;
+		}
+	}
+
+        	//Get CraftBukkit Version into Array
+	$queryUsers = "SELECT * FROM `logs` WHERE Text like 'This server is running Craftbukkit version%'";
+	$result = mysql_query($queryUsers);
+	$bkVersionList= array();
+	$idCnt = 0;
+	if (mysql_num_rows($result) != 0)
+ 	{
+		while($row = mysql_fetch_array($result))
+		{
+		$date = date("U",strtotime($row["Date"]));
+//                          echo $row["Text"]." $date</br>";
+		if ($idCnt==0){
+                    if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-b(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
 			{
-                        if($currentVersion != $matches[1]){
                         $currentVersion = $matches[1];
-  //                      echo $matches[1]." $date</br>";
-   		array_push($cbVersionList, trim($matches[1])."|$date");
-                        }}
+                        array_push($bkVersionList, trim($matches[1])."|$date");
+                        }
+		}
+       		if (preg_match("/This server is running Craftbukkit version git\-Bukkit\-0.0.0\-(.*)\-(.*)\-b(.*) \(MC: (.*)\)/",trim($row["Text"]),$matches)>0)
+		{
+                    if($currentVersion != $matches[1])
+                        {
+                        $currentVersion = $matches[1];
+                            array_push($bkVersionList, trim($matches[1])."|$date");
+                        }
+                }
 
                 $idCnt++;
 		}
@@ -478,6 +523,13 @@ echo "<span class='mcVersionList'>$value</span>";
 }
 echo "</div>";
 
+echo "<div style='display:none;' id='bkVersionArray'>";
+foreach ($bkVersionList as $value)
+{
+echo "<span class='bkVersionList'>$value</span>";
+}
+echo "</div>";
+
 echo "<div style='display:none;' id='cbVersionArray'>";
 foreach ($cbVersionList as $value)
 {
@@ -640,16 +692,6 @@ echo "<div style='display:none;' id='uptimeDialog'><span id='uptimeWeek'>$uptime
 <?php
 }
 ?>
-
-<html><head><title>MineCraft Logs</title>
-
-  <link type="text/css" href="css/dark-hive/jquery-ui-1.8.6.custom.css" rel="stylesheet" />	
-  <link rel="stylesheet" type="text/css" href="css/default.css" />
-
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
-</head><body>
 
 <?php
 displayStats();

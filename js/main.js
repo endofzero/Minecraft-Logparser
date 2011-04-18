@@ -18,6 +18,7 @@ var runecraftArray = new Array();
 
 var mcVersionArray = new Array();
 var cbVersionArray = new Array();
+var bkVersionArray = new Array();
 
 $(document).ready(function(){
 		ctx = document.getElementById('grapher').getContext('2d');
@@ -416,6 +417,9 @@ function createArray()
 	$('.cbVersionList').each(function(index) {
 		cbVersionArray.push($(this).text());
 	});
+	$('.bkVersionList').each(function(index) {
+		bkVersionArray.push($(this).text());
+	});
 	$('.severeErrorItem').each(function(index) {
 		severeArray.push($(this).text());
 	});
@@ -456,7 +460,6 @@ function createArray()
 }
 
 function drawLabel(pos,textLabel){
-
 ctx.font = "12px Times New Roman";
 ctx.globalCompositeOperation ="destination-over";
 ctx.fillText(textLabel, 3, pos+12);
@@ -466,11 +469,11 @@ return;
 
 function drawVersion(pos,pixel,textLabel){
 ctx.font = "10px Times New Roman";
-ctx.globalCompositeOperation ="destination-over";
-ctx.fillRect(pixel,pos+5,1,15);
+//ctx.globalCompositeOperation ="destination-over";
+ctx.fillRect(pixel,pos+5,1,25);
 //ctx.globalCompositeOperation ="source-over";
-ctx.fillText(textLabel, pixel+2, pos+10);
-ctx.globalCompositeOperation ="source-over";
+ctx.fillText(textLabel, pixel+2, pos+8);
+//ctx.globalCompositeOperation ="source-over";
 return;
 }
 
@@ -485,9 +488,15 @@ var pos;
 var userChatColor ="rgba(48, 209, 209, 1)";
 var startColor ="rgba(255,255,255,1)";
 
-var severeColor ="rgba(255,0,0,1)";
+var mcVersionColor ="rgba(255,0,0,.65)";
+var cbVersionColor ="rgba(40,173,173,.65)";
+var bkVersionColor ="rgba(255,255,0,.65)";
 
+var severeColor ="rgba(255,0,0,1)";
 var warningColor ="rgba(255,128,0,1)";
+
+var warningTextColor ="rgba(255,128,0,1)";
+var severeTextColor ="rgba(255,0,0,1)";
 
 var hey0Color ="rgba(255,255,0,1)";
 var runecraftColor ="rgba(157,194,48,1)";
@@ -505,22 +514,65 @@ var lastUptime=0;
 //ctx.globalCompositeOperation ="source-over"
 ctx.clearRect(0,0,2000,2000);
 
+//Draw Minecraft Version in Red
 pos=0;
-
-ctx.fillStyle = severeColor;
+ctx.fillStyle = mcVersionColor;
+var i=0;
+var zeroVersion;
 for (x in mcVersionArray){
 //alert(mcVersionArray[x]);
 var test;
 test = mcVersionArray[x].split("|");
 mark = calcPixel(test[1]);
-//ctx.fillRect(mark,pos,1,8);
-//alert(test[1])
+if (i==0){
+    zeroVersion = test[0];
+//drawVersion(pos,mark,test[0]);
+} 
+if (mark==1&&zeroVersion!=test[0]){
+//alert(pos);
+ctx.clearRect(2,pos+1,(pos+35),(pos+35));
+//ctx.clearRect(0,0,2000,2000);
+
 drawVersion(pos,mark,test[0]);
+zeroVersion = test[0];
+}else{
+drawVersion(pos,mark,test[0]);    
 }
 
-pos=7;
+i = i+1;
+}
 
-ctx.fillStyle = consoleChatColor;
+pos=10;
+var i=0;
+var zeroVersion;
+ctx.fillStyle = bkVersionColor;
+for (x in bkVersionArray){
+//alert(mcVersionArray[x]);
+var test;
+test = bkVersionArray[x].split("|");
+mark = calcPixel(test[1]);
+if (i==0){
+    zeroVersion = test[0];
+//drawVersion(pos,mark,test[0]);
+} 
+if (mark==1&&zeroVersion!=test[0]){
+//alert(pos);
+ctx.clearRect(2,pos+1,(pos+25),(pos+25));
+//ctx.clearRect(0,0,2000,2000);
+
+drawVersion(pos,mark,test[0]);
+zeroVersion = test[0];
+}else{
+drawVersion(pos,mark,test[0]);    
+}
+
+i = i+1;
+}
+
+pos=20;
+var i=0;
+var zeroVersion;
+ctx.fillStyle = cbVersionColor;
 for (x in cbVersionArray){
 //alert(mcVersionArray[x]);
 var test;
@@ -528,11 +580,26 @@ test = cbVersionArray[x].split("|");
 mark = calcPixel(test[1]);
 //ctx.fillRect(mark,pos,1,8);
 //alert(test[1])
+if (i==0){
+    zeroVersion = test[0];
+//drawVersion(pos,mark,test[0]);
+} 
+if (mark==1&&zeroVersion!=test[0]){
+//alert(pos);
+ctx.clearRect(2,pos,(pos+25),(pos+25));
+//ctx.clearRect(0,0,2000,2000);
+
 drawVersion(pos,mark,test[0]);
+zeroVersion = test[0];
+}else{
+drawVersion(pos,mark,test[0]);    
+}
+
+i = i+1;
 }
 
 hei=30;
-pos=20;
+pos=30;
 ctx.fillStyle = uptimeColor;
 for (x in startArray)
 {
@@ -569,9 +636,10 @@ for (x in startArray)
 
 hei=15;
 //pos=31;
-pos=51;
-ctx.fillStyle = severeColor;
+pos=pos+23;
+ctx.fillStyle = severeTextColor;
 drawLabel(pos,"Severe");
+ctx.fillStyle = severeColor;
 
 for (x in severeArray)
 {
