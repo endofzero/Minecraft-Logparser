@@ -11,8 +11,8 @@ $masterLogPath=$parserSettings["masterLogPath"];
 $injectLogPath=$parserSettings["injectLogPath"];
 $textInject=$parserSettings["textInject"];
 
-$logDatabase=$parserSettings['logDatabase'];
-$logTableName=$parserSettings['logTableName'];
+$logDatabase=$parserSettings["logDatabase"];
+$logTableName=$parserSettings["logTableName"];
 
 if ($argc != 2 || in_array($argv[1], array('--help', '-help', '-h','-?'))) {
 ?>
@@ -173,7 +173,7 @@ mysql_select_db($logDatabase) or die('Unable to select the Database');
 	if (mysql_query($sql))
 	{
 		$outStr = $dateTime ." ".$class." ".$value." ".$hash."\n";
-		if (textInject==1){
+		if ($textInject==1){
 			$output = file_put_contents($injectLogPath,$outStr,FILE_APPEND);
 		}
 		$injectCount++;

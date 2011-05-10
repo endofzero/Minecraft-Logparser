@@ -5,6 +5,8 @@ var drawMin;
 var drawMax;
 var userCount;
 var canvasWidth=1000;
+var XOffset = 8;
+var YOffset = 86;
 var userChatArray = new Array();
 var startArray = new Array();
 var userArray = new Array();
@@ -28,268 +30,19 @@ $(document).ready(function(){
 		drawMax = unixMax;
 		userCount = $("#userCount").text();
 
-// Graph Buttons
-		$( "#serverStartGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#severeErrorGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#warningErrorGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#heyLoggingGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#runecraftGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#userLoginGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#userLogoutGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#userChatGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#consoleChatGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
-		$( "#consoleMsgGraph" ).button({icons:{primary:"ui-icon-signal"},text:false});
+    $("#grapher").mousedown(function(e){
+      var XCoords = e.pageX;
+      var YCoords = e.pageY;
+      XCoords = XCoords - XOffset;
+      YCoords = YCoords - YOffset;
 
-// Log Buttons
-		$( "#serverStartLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-		.click(function() {
-			var options;
-			if ( $( this ).text() === "show" ) {
-			$('.serverStart').removeClass('hide');
-			$('.serverStop').removeClass('hide');
-				options = {
-					label: "hide",
-					icons: {
-						primary: "ui-icon-minus"
-					}
-				};
-			} else {
-			$('.serverStart').addClass('hide');
-			$('.serverStop').addClass('hide');
-				options = {
-					label: "show",
-					icons: {
-						primary: "ui-icon-plus"
-					}
-				};
-			}
-			$( this ).button( "option", options );
-		});
-
-		$( "#severeErrorLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#warningErrorLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#heyLoggingLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#runecraftLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#userLoginLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#userLogoutLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#userChatLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#consoleChatLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
-
-		$( "#consoleMsgLog" ).button({icons:{primary:"ui-icon-minus"},text:false})
-                .click(function() {
-                        var options;
-                        if ( $( this ).text() === "show" ) {
-                        $('.serverStart').removeClass('hide');
-                        $('.serverStop').removeClass('hide');
-                                options = {
-                                        label: "hide",
-                                        icons: {
-                                                primary: "ui-icon-minus"
-                                        }
-                                };
-                        } else {
-                        $('.serverStart').addClass('hide');
-                        $('.serverStop').addClass('hide');
-                                options = {
-                                        label: "show",
-                                        icons: {
-                                                primary: "ui-icon-plus"
-                                        }
-                                };
-                        }
-                        $( this ).button( "option", options );
-                });
+      $("#cursorPosition").text(convertInlinePercent(calcTime(XCoords)));
+	draw();
+        ctx.globalCompositeOperation ="destination-over";
+        ctx.fillStyle = "rgba(255,0,0,.5)";
+        ctx.fillRect(XCoords,0,1,300);
+        ctx.globalCompositeOperation = 'source-over';
+    });
 
 		$( "button" ).button();
 		$( "#graphDialog" ).dialog({
@@ -341,6 +94,7 @@ $(document).ready(function(){
 			change: function( event, ui ) {
 				setScale((ui.values[ 0 ]/100), (ui.values[ 1 ]/100));
 				draw();
+				$( "#cursorPosition" ).html("");
 			}
 		});
 		$( "#startRange" ).html( convertUnix(unixMin));
@@ -353,6 +107,38 @@ function pushInfo(){
 createArray();
 draw();
 extractUptime();
+}
+
+function getPosition(mouseEvent, element) {
+    var x, y;
+    if (mouseEvent.pageX != undefined && mouseEvent.pageY != undefined) {
+        x = mouseEvent.pageX;
+        y = mouseEvent.pageY;
+    } else {
+        x = mouseEvent.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = mouseEvent.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    return { X: x - element.offsetLeft, Y: y - element.offsetTop };
+}
+
+function navigate(page)
+{
+document.location=page;
+}
+
+function getcontent(page,div)
+{
+$.get(page, function(data) {
+$("#"+div).html(data);
+});
+}
+
+function autoupdate(page,div,delay)
+{
+var auto_refresh = setInterval(function()
+{
+$("#"+div).load(page);
+}, delay * 1000);
 }
 
 function setScale(percentMin, percentMax){
@@ -376,6 +162,15 @@ function convertPercent(percent){
 var base = unixMax - unixMin;
 var minDiff = Math.floor((percent/100)*base);
 dateValue = (unixMin+minDiff);
+
+var myDate = new Date( dateValue *1000);
+return myDate.toDateString()+" "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds();
+//return dateValue;
+}
+function convertInlinePercent(percent){
+var base = drawMax - drawMin;
+var minDiff = Math.floor((percent/100)*base);
+dateValue = (drawMin+minDiff);
 //return dateValue;
 
 var myDate = new Date( dateValue *1000);
@@ -403,6 +198,13 @@ var percent = offset / base;
 var pixel = Math.floor(percent*canvasWidth);
 if (pixel<1){pixel=1;}
 return pixel;
+}
+
+function calcTime(pixel) //Takes X-Pixel and converts it back into a Time value
+{
+if (pixel<1){pixel=1;}
+var percent = pixel / canvasWidth;
+return percent*100;
 }
 
 
@@ -461,9 +263,9 @@ function createArray()
 
 function drawLabel(pos,textLabel){
 ctx.font = "12px Times New Roman";
-ctx.globalCompositeOperation ="destination-over";
+//ctx.globalCompositeOperation ="destination-over";
 ctx.fillText(textLabel, 3, pos+12);
-ctx.globalCompositeOperation ="source-over";
+//ctx.globalCompositeOperation ="source-over";
 return;
 }
 
@@ -495,8 +297,8 @@ var bkVersionColor ="rgba(255,255,0,.65)";
 var severeColor ="rgba(255,0,0,1)";
 var warningColor ="rgba(255,128,0,1)";
 
-var warningTextColor ="rgba(255,128,0,1)";
-var severeTextColor ="rgba(255,0,0,1)";
+var warningTextColor ="rgba(255,128,0,.65)";
+var severeTextColor ="rgba(255,0,0,.65)";
 
 var hey0Color ="rgba(255,255,0,1)";
 var runecraftColor ="rgba(157,194,48,1)";
@@ -650,8 +452,9 @@ for (x in severeArray)
 pos= pos + (hei+1);
 
 
-ctx.fillStyle = warningColor;
+ctx.fillStyle = warningTextColor;
 drawLabel(pos,"Warning");
+ctx.fillStyle = warningColor;
 
 for (x in warningArray)
 {
