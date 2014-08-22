@@ -9,5 +9,6 @@ hideIP=1
 logDirection="reverse"
 consoleChat="console"
 hideColor=1
+parserYear=2014
 
 sectionLabels="Server;Error;Chat;Console;Plugins;Commands;Full Logs"
