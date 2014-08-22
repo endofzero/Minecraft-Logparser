@@ -10,6 +10,7 @@ $parserSettings=parse_ini_file("parser.settings");
 $masterLogPath=$parserSettings["masterLogPath"];
 $injectLogPath=$parserSettings["injectLogPath"];
 $textInject=$parserSettings["textInject"];
+$year=$parserSettings["parserYear"];
 
 $logDatabase=$parserSettings["logDatabase"];
 $logTableName=$parserSettings["logTableName"];
@@ -121,7 +122,6 @@ function injectLogs(){
 
 global $masterLogPath, $injectLogPath, $logDatabase, $textInject;
 
-$year = 2011;
 $testArray = array();
 
 // Load log file into array
